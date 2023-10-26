@@ -139,6 +139,12 @@ class CfgAvailableBehaviors
 				value = "defend";
 				type = "string";
 			};
+			class debugEnabled
+			{
+				displayName = "debugEnabled";
+				value = "false";
+				type = "boolean";
+			};
 		};
 	};
 };

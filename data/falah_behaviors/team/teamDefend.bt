@@ -46,17 +46,19 @@
       "id": "61429780-e81b-4fbf-8706-be52376dadbc",
       "type": "scriptAction",
       "script": [
-        "local vector = MathExt.HeadingToVec3(arg.orderData.azimut)",
-        "DebugLine(",
-        "    arg.orderData.position + Vec3(0,0,4), -- pos1",
-        "    arg.orderData.position + Vec3(0,0,4) + 4*vector, -- pos2",
-        "    0.8, 0.3, 0.7 -- colors",
-        ")",
-        "DebugLine(",
-        "    arg.orderData.position, -- pos1",
-        "    arg.orderData.position + Vec3(0,0,4), -- pos2",
-        "    0.8, 0.3, 0.7 -- colors",
-        ") "
+        "if arg.orderData.debugEnabled then",
+        "    local vector = MathExt.HeadingToVec3(arg.orderData.azimut)",
+        "    DebugLine(",
+        "        arg.orderData.position + Vec3(0,0,4), -- pos1",
+        "        arg.orderData.position + Vec3(0,0,4) + 4*vector, -- pos2",
+        "        0.8, 0.3, 0.7 -- colors",
+        "    )",
+        "    DebugLine(",
+        "        arg.orderData.position, -- pos1",
+        "        arg.orderData.position + Vec3(0,0,4), -- pos2",
+        "        0.8, 0.3, 0.7 -- colors",
+        "    ) ",
+        "end"
       ]
     }
   ],
@@ -64,28 +66,28 @@
     "nodesInfo": [
       {
         "id": "a238fe93-ae9e-4e7c-83a6-54f9b9575437",
-        "position": "2000,181"
+        "position": "2000,225"
       },
       {
         "id": "a75d632d-c67f-4460-93ce-3fce3be5cd98",
-        "position": "1900,281"
+        "position": "1900,325"
       },
       {
         "id": "e7b8696a-b77c-4a58-981b-a1fa33d83f8b",
-        "position": "1737.5,393.5"
+        "position": "1737.5,437.5"
       },
       {
         "id": "7a415bab-3978-4723-893d-328dc3ac4c00",
-        "position": "1987.5,393.5"
+        "position": "1987.5,437.5"
       },
       {
         "id": "61429780-e81b-4fbf-8706-be52376dadbc",
-        "position": "2137.5,331"
+        "position": "2137.5,375"
       }
     ],
     "editorObjects": [],
-    "canvasSize": "3840,2481",
-    "gridPadding": "0,6"
+    "canvasSize": "3840,2525",
+    "gridPadding": "0,6.5"
   },
   "parameters": [
     {
