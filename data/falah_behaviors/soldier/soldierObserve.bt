@@ -1,0 +1,28 @@
+{
+  "name": "Reaction behavior OR Idle",
+  "id": "45d73b70-7ffc-4e50-bad7-cbae0da0824a",
+  "type": "scriptedReference",
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "45d73b70-7ffc-4e50-bad7-cbae0da0824a",
+        "position": "1687.5,200"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,2400"
+  },
+  "target": "return bb.orders.reactionPassive",
+  "arguments": {
+    "orderData": "return arg.orderData",
+    "defaultBehaviorPath": "return bb.orders.idle"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}

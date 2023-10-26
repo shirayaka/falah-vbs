@@ -1,0 +1,65 @@
+{
+  "name": "dismount and set visibility",
+  "id": "858f120e-b026-4fb3-bee0-7f3871219cce",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "dismount",
+      "id": "23d72a16-3059-4f79-9c16-fb686737c16a",
+      "type": "exitVehicle"
+    },
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "fbf7df33-c67b-4485-9ca6-b4d2fac2d4d4",
+      "type": "scriptAction",
+      "script": [
+        "local receivers = message.MakeListOfReceivers(arg.orderData)",
+        "message.ReportOrderCompleted(receivers, arg.orderData)"
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "858f120e-b026-4fb3-bee0-7f3871219cce",
+        "position": "1900,162.5"
+      },
+      {
+        "id": "6353678b-b9fe-4226-b356-d69d38866fa8",
+        "position": "1990,261.5"
+      },
+      {
+        "id": "23d72a16-3059-4f79-9c16-fb686737c16a",
+        "position": "1800,287.5"
+      },
+      {
+        "id": "fbf7df33-c67b-4485-9ca6-b4d2fac2d4d4",
+        "position": "2002.75,296.1"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "6353678b-b9fe-4226-b356-d69d38866fa8",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 193.0,
+        "height": 93.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3840,2400"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}

@@ -1,0 +1,198 @@
+{
+  "name": "move & listen",
+  "id": "18f79a89-6256-499c-86b2-65f90fa04c6f",
+  "type": "supervisedParallel",
+  "subtrees": [
+    {
+      "name": "move to position in column",
+      "id": "8533a2b1-ceaf-4489-abb2-c57ac4b6c6bb",
+      "type": "sequence",
+      "subtrees": [
+        {
+          "name": "MSG: NewOrder to teams",
+          "id": "2db3e8fe-8423-4288-b20a-1676867f50a9",
+          "type": "scriptAction",
+          "script": [
+            "loc.childElementsInPositions = InternalTable()",
+            "local listOfChildElements = {}",
+            "for member in self:GetChildGroups() do",
+            "    listOfChildElements[#listOfChildElements + 1] = member ",
+            "end",
+            "local pointGroup = listOfChildElements[1]",
+            "",
+            "-- local newOrder = team.Reorder(listOfChildElements, pointGroup)",
+            "",
+            "message.SendOrder(",
+            "    pointGroup, -- receiver",
+            "    arg.orderData.childElementBtset, -- btset",
+            "    \"move\", -- behaviorName",
+            "    { -- behaviorParameters",
+            "        -- mandatory",
+            "        position = arg.orderData.position,",
+            "        -- optional",
+            "        reportCompletedToParent = true,",
+            "    },",
+            "    arg.orderData -- copy of current level orderData",
+            "    -- presetName (optional)",
+            "    -- overrides",
+            ")",
+            "",
+            "loc.childElementsInPositions[pointGroup] = false",
+            "",
+            "local previousGroup = pointGroup",
+            "for i=1, #listOfChildElements do",
+            "    local group = listOfChildElements[i]",
+            "    if group ~= pointGroup then",
+            "        message.SendOrder(",
+            "            group, -- receiver",
+            "            arg.orderData.childElementBtset, -- btset",
+            "            \"follow\", -- behaviorName",
+            "            { -- behaviorParameters",
+            "                -- mandatory",
+            "                elementToFollow = listOfChildElements[i-1],",
+            "                followDistance = 20,",
+            "                -- optional",
+            "            },",
+            "            arg.orderData -- copy of current level orderData",
+            "            -- presetName (optional)",
+            "            -- overrides",
+            "        )",
+            "        previousGroup = group",
+            "    end",
+            "end",
+            "",
+            "loc.childElementsCount = #listOfChildElements",
+            "",
+            "-- last guy in column should be followed by others",
+            "-- sensor.SetLastValue(arg.orderData.sensors.ElementToFollow, listOfChildElements[#listOfChildElements])"
+          ]
+        },
+        {
+          "name": "childElementsInPositions",
+          "id": "872c69ba-42d2-4393-b4c4-4af66503a6b4",
+          "type": "waitUntil",
+          "condition": [
+            "return loc.done"
+          ]
+        },
+        {
+          "name": "MSG: OrderCompleted",
+          "id": "dbf0fa25-2115-46f8-a801-416303a72cb1",
+          "type": "scriptAction",
+          "script": [
+            "local receivers = message.MakeListOfReceivers(arg.orderData)",
+            "",
+            "message.ReportOrderCompleted(receivers, arg.orderData)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OrderCompleted",
+      "id": "518cac95-612a-4d16-9a23-a2288146dfe9",
+      "type": "messageHandler",
+      "handler": [
+        "--[[",
+        "loc.childElementsInPositions[msg.sender] = message.ValidateOrderCompleted(",
+        "    msg, -- full message table",
+        "    \"occupy\" -- behaviorName used in MSG sender script action",
+        ")",
+        "DebugLog(msg.sender .. \" \" .. msg.value.originalOrderData.orderName)",
+        "]]--",
+        "loc.childElementsInPositions[msg.sender] = true"
+      ],
+      "subject": "OrderCompleted"
+    },
+    {
+      "name": "check for completed",
+      "id": "2f29a8b2-89b0-40c0-90ea-dc945a3e09c1",
+      "type": "sequence",
+      "subtrees": [
+        {
+          "name": "1s",
+          "id": "1f4990ed-b808-490e-b8b5-4773300adabd",
+          "type": "wait",
+          "time": [
+            "return 1"
+          ]
+        },
+        {
+          "name": "Check order completed",
+          "id": "33ffd8d7-567f-4171-8ba0-6b29bce3991e",
+          "type": "scriptAction",
+          "script": [
+            "local inPositionCounter = 0",
+            "local childElementsCounter = 0",
+            "",
+            "for childElement, inPosition in pairs(loc.childElementsInPositions) do",
+            "    if (childElement:Valid() and childElement:IsAlive()) then",
+            "        if (inPosition) then",
+            "            inPositionCounter = inPositionCounter + 1",
+            "        end",
+            "        childElementsCounter = childElementsCounter + 1",
+            "    end",
+            "end",
+            "",
+            "-- check if done",
+            "loc.done = inPositionCounter == childElementsCounter"
+          ]
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "18f79a89-6256-499c-86b2-65f90fa04c6f",
+        "position": "1611.75,71.25"
+      },
+      {
+        "id": "8533a2b1-ceaf-4489-abb2-c57ac4b6c6bb",
+        "position": "1586.75,333.75"
+      },
+      {
+        "id": "2db3e8fe-8423-4288-b20a-1676867f50a9",
+        "position": "1361.75,458.75"
+      },
+      {
+        "id": "872c69ba-42d2-4393-b4c4-4af66503a6b4",
+        "position": "1586.75,458.75"
+      },
+      {
+        "id": "dbf0fa25-2115-46f8-a801-416303a72cb1",
+        "position": "1811.75,458.75"
+      },
+      {
+        "id": "518cac95-612a-4d16-9a23-a2288146dfe9",
+        "position": "1811.75,221.25"
+      },
+      {
+        "id": "2f29a8b2-89b0-40c0-90ea-dc945a3e09c1",
+        "position": "2011.75,221.25"
+      },
+      {
+        "id": "1f4990ed-b808-490e-b8b5-4773300adabd",
+        "position": "1961.75,296.25"
+      },
+      {
+        "id": "33ffd8d7-567f-4171-8ba0-6b29bce3991e",
+        "position": "2124.25,296.25"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,2435",
+    "gridPadding": "0,10"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false
+    }
+  ],
+  "locals": {
+    "childElementsInPositions": "return nil",
+    "childElementsCount": "return nil",
+    "done": "return false",
+    "restart": "return false"
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "name": "move sequence",
+  "id": "35cc89c7-8ac7-459d-a7e2-bd619d08bc7c",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "slow",
+      "id": "b2ee0a0d-7349-45fe-b24b-95d3e271b904",
+      "type": "setEntitySpeedLimits",
+      "movementSpeed": [
+        "return 2.5"
+      ]
+    },
+    {
+      "name": "Reset heading",
+      "id": "a33ebd12-c85e-459d-be80-2ad96b71809b",
+      "type": "scriptAction",
+      "script": [
+        "self:ReqHeadingFormationIfStationary()"
+      ]
+    },
+    {
+      "name": "(re)set stance",
+      "id": "2aaba32a-6d9e-4fbd-86b2-d229d0d8ae2b",
+      "type": "setStance",
+      "stance": [
+        "return Stance.Standing"
+      ]
+    },
+    {
+      "name": "(re)set threats",
+      "id": "2c674c81-761f-44d7-b2f0-f34d2cdc3fed",
+      "type": "scriptAction",
+      "script": [
+        "loc.threats = arg.orderData.threats",
+        "",
+        "if (loc.threats == nil and arg.orderData.sqfThreats ~= nil) then",
+        "    loc.threats = process.SQFThreats(arg.orderData.sqfThreats)",
+        "end",
+        "",
+        "if (loc.threats ~= nil) then",
+        "    self:SetThreats(loc.threats)",
+        "    return true",
+        "end",
+        "",
+        "self:ResetThreats()",
+        "return true"
+      ]
+    },
+    {
+      "name": "move & debug",
+      "id": "8f499589-2a5c-495f-b695-5a853486b3cc",
+      "type": "supervisedParallel",
+      "subtrees": [
+        {
+          "name": "Move",
+          "id": "792823c0-c64d-4458-a721-446af9398828",
+          "type": "scriptedReference",
+          "target": "return bb.orders.move",
+          "arguments": {
+            "orderData": "return arg.orderData"
+          }
+        },
+        {
+          "name": "weaponRaised",
+          "id": "fe37d9e4-fe31-4063-8c52-cbdcfcffc653",
+          "type": "scriptAction",
+          "script": [
+            "local direction = MathExt.HeadingToVec3(self:GetHeading())",
+            "local velocity = self:GetVelocity()",
+            "if velocity:Norm() > 1e-1 then",
+            "    direction = velocity:Normalized()",
+            "end",
+            "",
+            "self:ReqHeadingAimAtPos(self:GetPosition() + 15 * direction, 0.5)"
+          ]
+        },
+        {
+          "name": "DEBUG: threats",
+          "id": "0b1e48a0-e4e8-4646-94ee-49eb6dabecd9",
+          "type": "scriptAction",
+          "script": [
+            "if (arg.orderData.debugEnabled) then",
+            "",
+            "    local offset = Vec3(0,0,5)",
+            "",
+            "    if loc.threats ~= nil then",
+            "        for i=1, #loc.threats do",
+            "            if loc.threats[i].area ~= nil then",
+            "                draw.Circle(",
+            "                    loc.threats[i].area:Center() + offset, -- position",
+            "                    loc.threats[i].area:Radius(), -- radius",
+            "                    1, 0, 0, 1 -- RGBA",
+            "                )",
+            "            end",
+            "        end",
+            "    end",
+            "end"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "set ReqHeadingAbs",
+      "id": "f11781e9-e077-40c0-bd17-44353d7f091c",
+      "type": "scriptAction",
+      "script": [
+        "local heading = arg.orderData.heading",
+        "local parentOrderData = arg.orderData.parentOrderData",
+        "",
+        "if (heading ~= nil) then",
+        "    self:ReqHeadingAbs(heading)",
+        "elseif (parentOrderData ~= nil) then",
+        "    if (parentOrderData.heading ~= nil) then",
+        "        self:ReqHeadingAbs(parentOrderData.heading)",
+        "    end",
+        "end"
+      ]
+    },
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "56dc98b5-275e-4fe1-b1c3-397e3f7e9098",
+      "type": "scriptAction",
+      "script": [
+        "local receivers = message.MakeListOfReceivers(arg.orderData)",
+        "message.ReportOrderCompleted(receivers, arg.orderData)"
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "35cc89c7-8ac7-459d-a7e2-bd619d08bc7c",
+        "position": "2228.375,485.486363636364"
+      },
+      {
+        "id": "6f5c0572-1032-42e6-af18-a739995c6e16",
+        "position": "2587.25,581.136363636364"
+      },
+      {
+        "id": "b2ee0a0d-7349-45fe-b24b-95d3e271b904",
+        "position": "1471.625,620.986363636364"
+      },
+      {
+        "id": "a33ebd12-c85e-459d-be80-2ad96b71809b",
+        "position": "1662.5,615.736363636364"
+      },
+      {
+        "id": "2aaba32a-6d9e-4fbd-86b2-d229d0d8ae2b",
+        "position": "1837.5,615.736363636364"
+      },
+      {
+        "id": "2c674c81-761f-44d7-b2f0-f34d2cdc3fed",
+        "position": "2012.5,615.736363636364"
+      },
+      {
+        "id": "8f499589-2a5c-495f-b695-5a853486b3cc",
+        "position": "2225,615.736363636364"
+      },
+      {
+        "id": "792823c0-c64d-4458-a721-446af9398828",
+        "position": "2225,753.236363636364"
+      },
+      {
+        "id": "fe37d9e4-fe31-4063-8c52-cbdcfcffc653",
+        "position": "2425,790.736363636364"
+      },
+      {
+        "id": "0b1e48a0-e4e8-4646-94ee-49eb6dabecd9",
+        "position": "2612.5,790.736363636364"
+      },
+      {
+        "id": "f11781e9-e077-40c0-bd17-44353d7f091c",
+        "position": "2412.5,615.736363636364"
+      },
+      {
+        "id": "56dc98b5-275e-4fe1-b1c3-397e3f7e9098",
+        "position": "2600,615.736363636364"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "6f5c0572-1032-42e6-af18-a739995c6e16",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 193.0,
+        "height": 93.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3840,2653.23636363636",
+    "gridPadding": "0,3.23636363636376"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "threats": "return nil"
+  }
+}

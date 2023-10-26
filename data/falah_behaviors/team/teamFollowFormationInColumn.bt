@@ -1,0 +1,138 @@
+{
+  "name": "teamFFinC",
+  "id": "627cff69-1ba6-43ea-ac20-aa0be1838283",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "MSG: orders to soldiers",
+      "id": "215fac36-9a4f-40bc-8f89-a68765d38b47",
+      "type": "scriptAction",
+      "script": [
+        "local listOfChildElements = orbat.GetChildElements()",
+        "local pointman = listOfChildElements[1]",
+        "",
+        "-- local newOrder = team.Reorder(listOfChildElements, pointman)",
+        "",
+        "message.SendOrder(",
+        "    pointman, -- receiver",
+        "    arg.orderData.childElementBtset, -- btset",
+        "    \"follow\", -- behaviorName",
+        "    { -- behaviorParameters",
+        "        -- optional",
+        "    },",
+        "    arg.orderData -- copy of current level orderData",
+        "    -- presetName (optional)",
+        "    -- overrides",
+        ")",
+        "",
+        "local previousSoldier = pointman",
+        "for i=1, #listOfChildElements do",
+        "    local soldier = listOfChildElements[i]",
+        "    if soldier ~= pointman then",
+        "        message.SendOrder(",
+        "            previousSoldier, -- receiver",
+        "            arg.orderData.childElementBtset, -- btset",
+        "            \"follow\", -- behaviorName",
+        "            { -- behaviorParameters",
+        "                -- mandatory",
+        "                elementToFollow = previousSoldier,",
+        "                followDistance = arg.orderData.columnSpacing,",
+        "                -- optional",
+        "            },",
+        "            arg.orderData -- copy of current level orderData",
+        "            -- presetName (optional)",
+        "            -- overrides",
+        "        )",
+        "        previousSoldier = soldier",
+        "    end",
+        "end",
+        "",
+        "-- last guy in column should be followed by others",
+        "-- sensor.SetLastValue(arg.orderData.sensors.ElementToFollow, listOfChildElements[#listOfChildElements])"
+      ]
+    },
+    {
+      "name": "Follow Formation",
+      "id": "2e166673-925d-4437-bc5b-75c32ca55e25",
+      "type": "followFormation"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "627cff69-1ba6-43ea-ac20-aa0be1838283",
+        "position": "1757,352.75"
+      },
+      {
+        "id": "0fca87c4-4b71-4bc6-ab9a-a4a7a7b98088",
+        "position": "1619.5,440.25"
+      },
+      {
+        "id": "9d3201f0-9985-42e8-9d40-4e46cafb5d1e",
+        "position": "1725,284"
+      },
+      {
+        "id": "9656e8e7-f86c-4e0e-8521-91576c3a40c4",
+        "position": "1400,196.5"
+      },
+      {
+        "id": "215fac36-9a4f-40bc-8f89-a68765d38b47",
+        "position": "1632,477.75"
+      },
+      {
+        "id": "2e166673-925d-4437-bc5b-75c32ca55e25",
+        "position": "1875,484"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "0fca87c4-4b71-4bc6-ab9a-a4a7a7b98088",
+        "type": "comment",
+        "header": "",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 198.0,
+        "height": 103.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "9d3201f0-9985-42e8-9d40-4e46cafb5d1e",
+        "type": "comment",
+        "header": "Never succeed",
+        "body": "Behavior is expected to run forever",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF808080",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FFD3D3D3",
+        "boxForeground": "#FF000000",
+        "width": 200.0
+      },
+      {
+        "id": "9656e8e7-f86c-4e0e-8521-91576c3a40c4",
+        "type": "comment",
+        "header": "Reports success",
+        "body": "Behavior is expected to autonomously reports its success to unit which requested order.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF658720",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF9ACD32",
+        "boxForeground": "#FF000000",
+        "width": 201.0,
+        "height": 87.0
+      }
+    ],
+    "canvasSize": "3840,2760",
+    "gridPadding": "0,9"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}

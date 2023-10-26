@@ -1,0 +1,108 @@
+{
+  "name": "squadFEinC",
+  "id": "1ccf5e44-9772-444f-a21f-0e28ea448bdd",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "MSG: orders to teams",
+      "id": "9f286064-1de8-4efb-b36d-0b80d4f8e09d",
+      "type": "scriptAction",
+      "script": [
+        "local listOfChildElements = {}",
+        "for member in self:GetChildGroups() do",
+        "    listOfChildElements[#listOfChildElements + 1] = member ",
+        "end",
+        "local pointGroup = listOfChildElements[1]",
+        "",
+        "-- local newOrder = team.Reorder(listOfChildElements, pointGroup)",
+        "",
+        "message.SendOrder(",
+        "    pointGroup, -- receiver",
+        "    arg.orderData.childElementBtset, -- btset",
+        "    \"follow\", -- behaviorName",
+        "    { -- behaviorParameters",
+        "        -- mandatory",
+        "        elementToFollow = arg.orderData.elementToFollow,",
+        "        followDistance = arg.orderData.followDistance,",
+        "        -- optional",
+        "    },",
+        "    arg.orderData -- copy of current level orderData",
+        ")",
+        "",
+        "local previousGroup = pointGroup",
+        "for i=1, #listOfChildElements do",
+        "    local group = listOfChildElements[i]",
+        "    if group ~= pointGroup then",
+        "        message.SendOrder(",
+        "            group, -- receiver",
+        "            arg.orderData.childElementBtset, -- btset",
+        "            \"follow\", -- behaviorName",
+        "            { -- behaviorParameters",
+        "                -- mandatory",
+        "                elementToFollow = listOfChildElements[i-1],",
+        "                followDistance = arg.orderData.columnSpacing,",
+        "                -- optional",
+        "            },",
+        "            arg.orderData -- copy of current level orderData",
+        "        )",
+        "        previousGroup = group",
+        "    end",
+        "end",
+        "",
+        "-- last guy in column should be followed by others",
+        "-- sensor.SetLastValue(arg.orderData.sensors.ElementToFollow, listOfChildElements[#listOfChildElements])"
+      ]
+    },
+    {
+      "name": "Wait Forever",
+      "id": "964694d9-d93b-490d-9684-8ee191161608",
+      "type": "waitForever"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "1ccf5e44-9772-444f-a21f-0e28ea448bdd",
+        "position": "1795.5,163"
+      },
+      {
+        "id": "cf8841d8-051b-4fc6-bf9c-31fd73e4922e",
+        "position": "1658,238"
+      },
+      {
+        "id": "9f286064-1de8-4efb-b36d-0b80d4f8e09d",
+        "position": "1670.5,275.5"
+      },
+      {
+        "id": "964694d9-d93b-490d-9684-8ee191161608",
+        "position": "1908,275.5"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "cf8841d8-051b-4fc6-bf9c-31fd73e4922e",
+        "type": "comment",
+        "header": "",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 198.0,
+        "height": 103.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3840,2400"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false
+    }
+  ],
+  "locals": {
+    "elementToFollow": "return nil",
+    "elementToFollowValid": "return nil"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "on foot or driving?",
+  "id": "7607dc3b-5656-4466-b91e-f0df0a34074c",
+  "type": "selector",
+  "subtrees": [
+    {
+      "name": "FE or FF",
+      "id": "92985d6b-5f9c-4152-8dcc-4c7bf3e89313",
+      "type": "selector",
+      "subtrees": [
+        {
+          "name": "Reaction OR move",
+          "id": "40664811-be14-41a2-9a67-fd4d3ed1b4be",
+          "type": "scriptedReference",
+          "decorators": [
+            {
+              "id": "cd95c400-9e6d-4bc4-9ad4-8248052defcb",
+              "type": "scriptCondition",
+              "name": "elementToFollow ~= nil",
+              "script": [
+                "return arg.orderData.elementToFollow ~= nil"
+              ]
+            }
+          ],
+          "target": "return bb.orders.reaction",
+          "arguments": {
+            "orderData": "return arg.orderData",
+            "defaultBehaviorPath": "return bb.orders.followEntity"
+          }
+        },
+        {
+          "name": "Reaction OR move",
+          "id": "69767fca-c601-4b8c-be55-2b6da6d9d290",
+          "type": "scriptedReference",
+          "target": "return bb.orders.reaction",
+          "arguments": {
+            "orderData": "return arg.orderData",
+            "defaultBehaviorPath": "return bb.orders.followFormation"
+          }
+        }
+      ],
+      "decorators": [
+        {
+          "id": "800f774a-e143-45b2-8b5a-09e6783c6c30",
+          "type": "scriptCondition",
+          "name": "not in vehicle",
+          "script": [
+            "return not self:GetOwnCrewPosition():Valid()"
+          ]
+        }
+      ],
+      "active": false
+    },
+    {
+      "name": "Wait Forever",
+      "id": "48cc34a6-9560-4b17-9eb0-58331ee3c939",
+      "type": "waitForever"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "7607dc3b-5656-4466-b91e-f0df0a34074c",
+        "position": "1575,223.875"
+      },
+      {
+        "id": "92985d6b-5f9c-4152-8dcc-4c7bf3e89313",
+        "position": "1437.5,348.875"
+      },
+      {
+        "id": "40664811-be14-41a2-9a67-fd4d3ed1b4be",
+        "position": "1250,511.375"
+      },
+      {
+        "id": "69767fca-c601-4b8c-be55-2b6da6d9d290",
+        "position": "1550,548.875"
+      },
+      {
+        "id": "48cc34a6-9560-4b17-9eb0-58331ee3c939",
+        "position": "1687.5,361.375"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,2552.875",
+    "gridPadding": "0,11.3749999999999"
+  },
+  "active": false,
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "suborderData": "return nil"
+  }
+}

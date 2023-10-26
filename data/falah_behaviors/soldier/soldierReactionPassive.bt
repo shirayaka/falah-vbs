@@ -1,0 +1,359 @@
+{
+  "name": "Order + checks",
+  "id": "282e0730-bb15-4ccb-961d-933dbe0b6693",
+  "type": "supervisedParallel",
+  "subtrees": [
+    {
+      "name": "React or follow original order",
+      "id": "96f0a1b8-830f-45bb-9d4f-88a2652de909",
+      "type": "selector",
+      "subtrees": [
+        {
+          "name": "reaction ending sequence",
+          "id": "e81e97ef-28fd-4bdc-b940-aa9fcc52742c",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "reactionRadiusCenter",
+              "id": "3ba6cf1d-d114-49cd-945d-5903d1aa45ef",
+              "type": "scriptAction",
+              "script": [
+                "loc.reactionRadiusCenter = self:GetPosition()"
+              ]
+            },
+            {
+              "name": "react + check to stay in",
+              "id": "5e3a1c6a-dfbb-42cb-bd5e-0a192e7a442f",
+              "type": "parallel",
+              "subtrees": [
+                {
+                  "name": "react",
+                  "id": "679e24a1-d6ad-4f5c-8b0a-826d23014384",
+                  "type": "sequence",
+                  "subtrees": [
+                    {
+                      "name": "suborderData",
+                      "id": "b44bf921-c82f-42bf-a895-df32e69b38e0",
+                      "type": "scriptAction",
+                      "script": [
+                        "loc.suborderData = tableExt.Extend(",
+                        "    {},",
+                        "    arg.orderData,",
+                        "    {",
+                        "        target = loc.newTargets[1]",
+                        "    }",
+                        ")",
+                        "    "
+                      ]
+                    },
+                    {
+                      "name": "Reaction behavior (Fire)",
+                      "id": "9c20c6d0-02ef-4456-ad2f-103998990dbe",
+                      "type": "scriptedReference",
+                      "target": "return bb.orders.fire",
+                      "arguments": {
+                        "orderData": "return loc.suborderData"
+                      }
+                    },
+                    {
+                      "name": "observe for a while",
+                      "id": "ce829cc4-6eaa-4435-aaa0-bf5573e7724c",
+                      "type": "wait",
+                      "time": [
+                        "return math.random(5)"
+                      ]
+                    }
+                  ],
+                  "decorators": [
+                    {
+                      "id": "2a2bb8e9-866a-422a-b77b-b02798e93f67",
+                      "type": "loopForever",
+                      "name": "<unnamed>"
+                    }
+                  ]
+                },
+                {
+                  "name": "check",
+                  "id": "e5c0f93d-660d-4a4f-b4bb-2af85560ae7d",
+                  "type": "sequence",
+                  "subtrees": [
+                    {
+                      "name": "reactionRadiusCenter",
+                      "id": "e3c16ff5-0c6b-4c0a-b543-0af3469df560",
+                      "type": "waitUntil",
+                      "condition": [
+                        "return loc.reactionRadiusCenter ~= nil"
+                      ]
+                    },
+                    {
+                      "name": "target alive",
+                      "id": "c06f48fa-031e-4e7c-aad7-213af45ab080",
+                      "type": "waitUntil",
+                      "condition": [
+                        "if loc.reactionTarget == nil then",
+                        "    return true",
+                        "end",
+                        "",
+                        "if not loc.reactionTarget:Valid() then",
+                        "    return true",
+                        "end",
+                        "",
+                        "if not loc.reactionTarget:IsAlive() then",
+                        "    return true",
+                        "end",
+                        "",
+                        "if self:GetPosition():Distance(loc.reactionTarget:GetPosition()) > bb.rules.reactionDistancePursue then",
+                        "    return true",
+                        "end",
+                        "",
+                        "return false"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "loc.reactionCooldownMax",
+                  "id": "785d567e-9a44-4828-8382-5011c12d2df2",
+                  "type": "wait",
+                  "time": [
+                    "return loc.reactionCooldownMax"
+                  ]
+                }
+              ],
+              "waitForAll": false
+            },
+            {
+              "name": "clean and fail",
+              "id": "30678919-8d3c-4e9d-87d7-1ee47faf9382",
+              "type": "scriptAction",
+              "script": [
+                "loc.reactionRadiusCenter = nil",
+                "loc.reactionTarget = nil",
+                "loc.reactionStarted = nil",
+                "loc.reactionCooldown = loc.reactionCooldownMax",
+                "return false"
+              ]
+            }
+          ],
+          "decorators": [
+            {
+              "id": "455c5bf7-b53f-4fe1-b55b-1e84eb6b21aa",
+              "type": "scriptCondition",
+              "name": "skip if bb.roe == \"NoReaction\"",
+              "script": [
+                "local roe = bb.rules.roe",
+                "",
+                "if roe ~= nil then",
+                "    if roe ==\"NoReaction\" then",
+                "        return false",
+                "    end",
+                "end",
+                "",
+                "return true"
+              ]
+            },
+            {
+              "id": "c45bbc9f-f865-477c-b2f0-6c1a37997d87",
+              "type": "scriptCondition",
+              "name": "reactionStarted",
+              "script": [
+                "return loc.reactionStarted == true"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Task behavior",
+          "id": "5c8f759d-ced0-42e8-940d-e0bb687782e9",
+          "type": "scriptedReference",
+          "target": "return arg.defaultBehaviorPath",
+          "arguments": {
+            "orderData": "return arg.orderData"
+          }
+        }
+      ],
+      "active": true
+    },
+    {
+      "name": "reaction entities calculation",
+      "id": "6b768663-3fc8-43bf-b1a6-41883df9d673",
+      "type": "sequence",
+      "subtrees": [
+        {
+          "name": "get entities",
+          "id": "8e8d464f-1541-4a60-92e0-c218fd7bda27",
+          "type": "scriptAction",
+          "script": [
+            "loc.newTargets = self:GetVisibleEnemies(400)",
+            "",
+            "--GetEntitiesInArea(Circle(self:GetPosition(), 400), { hasBrain = true, enemyOf = self })"
+          ]
+        },
+        {
+          "name": "check if reactionStarted",
+          "id": "1df70b12-4d38-4201-bd5f-b61ae7574f69",
+          "type": "scriptAction",
+          "script": [
+            "local targets = loc.newTargets",
+            "",
+            "if ",
+            "    loc.reactionStarted == nil or",
+            "    loc.reactionStarted == false",
+            "",
+            "then",
+            "    -- temporary distance check, later use path",
+            "    for i=1, #targets do",
+            "        -- selfdefense",
+            "        if self:GetPosition():Distance(targets[i]:GetPosition()) < 20 then",
+            "            loc.reactionStarted = true",
+            "            loc.reactionTarget = targets[i]",
+            "            break",
+            "        end ",
+            "        ",
+            "        if self:GetPosition():Distance(targets[i]:GetPosition()) < bb.rules.reactionDistanceTrigger then",
+            "            if loc.reactionCooldown == 0 then",
+            "                loc.reactionStarted = true",
+            "                loc.reactionTarget = targets[i]",
+            "                break",
+            "            else",
+            "                loc.reactionCooldown = loc.reactionCooldown - loc.reactionCooldownStep",
+            "            end",
+            "        end",
+            "    end",
+            "end",
+            "",
+            "bb.targets = targets"
+          ]
+        },
+        {
+          "name": "loc.reactionCooldownStep",
+          "id": "22523921-799d-4577-bac8-edab4e346029",
+          "type": "wait",
+          "time": [
+            "return loc.reactionCooldownStep"
+          ]
+        }
+      ],
+      "decorators": [
+        {
+          "id": "221adb73-0568-49c2-b952-76af4cffa373",
+          "type": "succeeder",
+          "name": "Always Succeed"
+        },
+        {
+          "id": "ec79100f-4f61-486d-8d1e-b10a9c00bb60",
+          "type": "scriptCondition",
+          "name": "is reaction radius defined?",
+          "script": [
+            "return loc.reactionRadiusCenter == nil"
+          ]
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "282e0730-bb15-4ccb-961d-933dbe0b6693",
+        "position": "1874.25,195.2"
+      },
+      {
+        "id": "96f0a1b8-830f-45bb-9d4f-88a2652de909",
+        "position": "1849.25,432.7"
+      },
+      {
+        "id": "e81e97ef-28fd-4bdc-b940-aa9fcc52742c",
+        "position": "1386.75,482.7"
+      },
+      {
+        "id": "3ba6cf1d-d114-49cd-945d-5903d1aa45ef",
+        "position": "1011.75,670.2"
+      },
+      {
+        "id": "5e3a1c6a-dfbb-42cb-bd5e-0a192e7a442f",
+        "position": "1311.75,682.7"
+      },
+      {
+        "id": "679e24a1-d6ad-4f5c-8b0a-826d23014384",
+        "position": "1186.75,770.2"
+      },
+      {
+        "id": "b44bf921-c82f-42bf-a895-df32e69b38e0",
+        "position": "825,911.7"
+      },
+      {
+        "id": "9c20c6d0-02ef-4456-ad2f-103998990dbe",
+        "position": "1025,899.2"
+      },
+      {
+        "id": "ce829cc4-6eaa-4435-aaa0-bf5573e7724c",
+        "position": "1237.5,899.2"
+      },
+      {
+        "id": "e5c0f93d-660d-4a4f-b4bb-2af85560ae7d",
+        "position": "1449.25,782.7"
+      },
+      {
+        "id": "e3c16ff5-0c6b-4c0a-b543-0af3469df560",
+        "position": "1461.75,895.2"
+      },
+      {
+        "id": "c06f48fa-031e-4e7c-aad7-213af45ab080",
+        "position": "1649.25,895.2"
+      },
+      {
+        "id": "785d567e-9a44-4828-8382-5011c12d2df2",
+        "position": "1820.93650793651,889"
+      },
+      {
+        "id": "30678919-8d3c-4e9d-87d7-1ee47faf9382",
+        "position": "1611.75,682.7"
+      },
+      {
+        "id": "5c8f759d-ced0-42e8-940d-e0bb687782e9",
+        "position": "1886.75,645.2"
+      },
+      {
+        "id": "6b768663-3fc8-43bf-b1a6-41883df9d673",
+        "position": "2224.25,345.2"
+      },
+      {
+        "id": "8e8d464f-1541-4a60-92e0-c218fd7bda27",
+        "position": "2199.25,557.7"
+      },
+      {
+        "id": "1df70b12-4d38-4201-bd5f-b61ae7574f69",
+        "position": "2361.75,557.7"
+      },
+      {
+        "id": "22523921-799d-4577-bac8-edab4e346029",
+        "position": "2549.25,557.7"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,2574.2",
+    "gridPadding": "0,11.6999999999999"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    },
+    {
+      "name": "defaultBehaviorPath",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "reactionRadiusCenter": "return nil",
+    "reactionTarget": "return nil",
+    "reactionStarted": "return nil",
+    "newTargets": "return nil",
+    "suborderData": "return nil",
+    "reactionCooldown": "return math.random(4)",
+    "reactionCooldownStep": "return 0.5",
+    "reactionCooldownMax": "return 5"
+  }
+}

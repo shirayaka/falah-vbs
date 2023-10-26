@@ -1,0 +1,311 @@
+{
+  "name": "follow and check",
+  "id": "0ea4af71-a6c1-486e-953d-0f91d4593925",
+  "type": "supervisedParallel",
+  "subtrees": [
+    {
+      "name": "follow or idle",
+      "id": "372926ac-c006-426a-b93e-dcb239e299d9",
+      "type": "selector",
+      "subtrees": [
+        {
+          "name": "follow sequence",
+          "id": "abf6cd69-d206-4860-9a9e-f860c7a66277",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "(re)set heading",
+              "id": "3c2c17d1-1e4c-4a46-a0c6-bb891a39e548",
+              "type": "scriptAction",
+              "script": [
+                "local heading = arg.orderData.heading",
+                "",
+                "if heading ~= nil then",
+                "    self:ReqHeadingRelToMove(heading)",
+                "end",
+                "",
+                "self:ReqHeadingRelToMove(0)"
+              ]
+            },
+            {
+              "name": "(re)set stance",
+              "id": "7dc1f8d3-e769-4bf4-b478-c05085cd9619",
+              "type": "setStance",
+              "stance": [
+                "local stance = arg.orderData.stance",
+                "",
+                "if stance ~= nil then",
+                "    return stance",
+                "end",
+                "",
+                "return Stance.Standing"
+              ]
+            },
+            {
+              "name": "move & debugging",
+              "id": "055d4455-02fe-40a6-816f-cff6ba5689fe",
+              "type": "supervisedParallel",
+              "subtrees": [
+                {
+                  "name": "pick proper move once",
+                  "id": "03973d3b-752e-4387-898d-43009b1421e4",
+                  "type": "selector",
+                  "subtrees": [
+                    {
+                      "name": "Follow Formation",
+                      "id": "05d10d72-5468-43ba-85d3-a38d1a535813",
+                      "type": "followFormation",
+                      "decorators": [
+                        {
+                          "id": "b3e30832-139f-4a49-9c19-1c35640e8671",
+                          "type": "scriptCondition",
+                          "name": "boundaries",
+                          "script": [
+                            "return arg.orderData.boundaries ~= nil"
+                          ]
+                        },
+                        {
+                          "id": "a723acb5-0296-41e2-8ee0-47a0571e8c0b",
+                          "type": "scriptCondition",
+                          "name": "movementRestrictions",
+                          "script": [
+                            "return arg.orderData.movementRestrictions ~= nil"
+                          ]
+                        }
+                      ],
+                      "restrictions": [
+                        "return arg.orderData.movementRestrictions"
+                      ],
+                      "boundaries": [
+                        "return Polygon(arg.orderData.boundaries)"
+                      ]
+                    },
+                    {
+                      "name": "Follow Formation",
+                      "id": "af098b53-8f4c-4905-afb6-95703d919abc",
+                      "type": "followFormation",
+                      "decorators": [
+                        {
+                          "id": "72aa644c-e445-4a8b-b6e9-f3d3755a2eac",
+                          "type": "scriptCondition",
+                          "name": "movementRestrictions",
+                          "script": [
+                            "return arg.orderData.movementRestrictions ~= nil"
+                          ]
+                        }
+                      ],
+                      "restrictions": [
+                        "return arg.orderData.movementRestrictions"
+                      ]
+                    },
+                    {
+                      "name": "Follow Formation",
+                      "id": "bcb3eee9-c98f-48ea-9bbb-0dd6ba27e1a6",
+                      "type": "followFormation",
+                      "decorators": [
+                        {
+                          "id": "5bca3a67-a960-4f04-9b2c-b085fcc79528",
+                          "type": "scriptCondition",
+                          "name": "boundaries",
+                          "script": [
+                            "return arg.orderData.boundaries ~= nil"
+                          ]
+                        }
+                      ],
+                      "boundaries": [
+                        "return Polygon(arg.orderData.boundaries)"
+                      ]
+                    },
+                    {
+                      "name": "Follow Formation",
+                      "id": "9b4edfeb-c908-4ff0-821f-ec34866fa93a",
+                      "type": "followFormation"
+                    }
+                  ],
+                  "active": false
+                }
+              ]
+            }
+          ],
+          "decorators": [
+            {
+              "id": "53494585-dcc6-4acb-afef-213386418765",
+              "type": "scriptCondition",
+              "name": "not crouchWhileNotMoving",
+              "script": [
+                "return not loc.crouchWhileNotMoving"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Idle",
+          "id": "72959560-c928-4604-81d1-26348fbe56cc",
+          "type": "scriptedReference",
+          "target": "return bb.orders.idle",
+          "arguments": {
+            "orderData": "return arg.orderData"
+          }
+        }
+      ],
+      "active": true
+    },
+    {
+      "name": "if not moving, crouch",
+      "id": "bea8cd80-d79e-4199-bc62-58ae9b5ffc41",
+      "type": "sequence",
+      "subtrees": [
+        {
+          "name": "3s",
+          "id": "3ce540d5-97d7-4a8b-8e7c-03cd0128777f",
+          "type": "wait",
+          "time": [
+            "return 3"
+          ]
+        },
+        {
+          "name": "check position",
+          "id": "ae3bad00-7a3d-4f9c-8c6f-2ecdaf163815",
+          "type": "scriptAction",
+          "script": [
+            "local pointman = self:GetParentGroup():GetEntity(0) -- TEMPORARY",
+            "",
+            "if orbat.IsAliveAndValid(pointman) then -- not group",
+            "    local newPosition = pointman:GetPosition()",
+            "    if loc.lastPosition == nil then ",
+            "        loc.lastPosition = newPosition",
+            "    elseif ",
+            "        loc.lastPosition:Distance(newPosition) < 1",
+            "    then",
+            "        loc.crouchWhileNotMoving = true",
+            "    else",
+            "        loc.crouchWhileNotMoving = false",
+            "    end",
+            "    loc.lastPosition = newPosition",
+            "else",
+            "    loc.crouchWhileNotMoving = false",
+            "end"
+          ]
+        }
+      ]
+    }
+  ],
+  "decorators": [
+    {
+      "id": "9cb76ddc-0d19-4f73-8a0b-4e5322e06dac",
+      "type": "waitUntil",
+      "name": "pointman alive",
+      "condition": [
+        "return self:GetParentGroup():GetEntity(0):IsAlive()"
+      ]
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "PLACEHOLDER: Set custom flags",
+      "id": "f1436a13-344b-4a1a-8544-1a5f03502026",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "f1436a13-344b-4a1a-8544-1a5f03502026",
+            "position": "1612.5,706"
+          }
+        ],
+        "editorObjects": []
+      }
+    },
+    {
+      "name": "PLACEHOLDER: Set speed",
+      "id": "0176ebb4-4d87-4784-9732-ec2ba2ba48db",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "0176ebb4-4d87-4784-9732-ec2ba2ba48db",
+            "position": "1025,706"
+          }
+        ],
+        "editorObjects": []
+      }
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "0ea4af71-a6c1-486e-953d-0f91d4593925",
+        "position": "1773.625,221.291666666667"
+      },
+      {
+        "id": "372926ac-c006-426a-b93e-dcb239e299d9",
+        "position": "1773.625,408.791666666667"
+      },
+      {
+        "id": "abf6cd69-d206-4860-9a9e-f860c7a66277",
+        "position": "1750,531"
+      },
+      {
+        "id": "3c2c17d1-1e4c-4a46-a0c6-bb891a39e548",
+        "position": "1250,706"
+      },
+      {
+        "id": "7dc1f8d3-e769-4bf4-b478-c05085cd9619",
+        "position": "1425,706"
+      },
+      {
+        "id": "055d4455-02fe-40a6-816f-cff6ba5689fe",
+        "position": "1962.5,718.5"
+      },
+      {
+        "id": "03973d3b-752e-4387-898d-43009b1421e4",
+        "position": "1950,831"
+      },
+      {
+        "id": "05d10d72-5468-43ba-85d3-a38d1a535813",
+        "position": "1625,943.5"
+      },
+      {
+        "id": "af098b53-8f4c-4905-afb6-95703d919abc",
+        "position": "1837.5,943.5"
+      },
+      {
+        "id": "bcb3eee9-c98f-48ea-9bbb-0dd6ba27e1a6",
+        "position": "2050,943.5"
+      },
+      {
+        "id": "9b4edfeb-c908-4ff0-821f-ec34866fa93a",
+        "position": "2262.5,943.5"
+      },
+      {
+        "id": "72959560-c928-4604-81d1-26348fbe56cc",
+        "position": "2000,518.5"
+      },
+      {
+        "id": "bea8cd80-d79e-4199-bc62-58ae9b5ffc41",
+        "position": "2086.125,308.791666666667"
+      },
+      {
+        "id": "3ce540d5-97d7-4a8b-8e7c-03cd0128777f",
+        "position": "1986.125,408.791666666667"
+      },
+      {
+        "id": "ae3bad00-7a3d-4f9c-8c6f-2ecdaf163815",
+        "position": "2148.625,408.791666666667"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,2833",
+    "gridPadding": "0,6"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "lastPosition": "return nil",
+    "crouchWhileNotMoving": "return false"
+  }
+}

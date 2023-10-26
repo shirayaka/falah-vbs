@@ -1,0 +1,263 @@
+{
+  "name": "mount and report",
+  "id": "1933757a-ae67-4a3e-a69d-49a5e1af2d80",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "pick a position and mount",
+      "id": "b8104ff7-03f5-4de6-ae90-02fee0338e11",
+      "type": "selector",
+      "subtrees": [
+        {
+          "name": "mount on specific crew pos",
+          "id": "1fe64d40-11f8-4998-9287-e7b2ee3369e6",
+          "type": "enterVehicle",
+          "decorators": [
+            {
+              "id": "65dc5b52-d93c-498a-97f6-94d549aa42e0",
+              "type": "scriptCondition",
+              "name": "crew position available",
+              "script": [
+                "return arg.orderData.crewPosition ~= nil"
+              ]
+            }
+          ],
+          "crewPosition": [
+            "return arg.orderData.crewPosition"
+          ]
+        },
+        {
+          "name": "do nothing",
+          "id": "00bcfb27-10e1-4f4b-8fa8-f16f86c38e1f",
+          "type": "success",
+          "decorators": [
+            {
+              "id": "f62db0d8-6659-4a10-b271-b51604f0ed58",
+              "type": "scriptCondition",
+              "name": "already in the right crew pos",
+              "script": [
+                "local currentCrewPos = self:GetOwnCrewPosition()",
+                "return currentCrewPos:GetVehicle() == arg.orderData.vehicle and currentCrewPos:GetRole() == arg.orderData.vehicleRole"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "driver mounting",
+          "id": "52dca48f-7a7f-4cc8-8d26-7c77296a1da4",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "mount as driver",
+              "id": "d7726fa2-3744-472f-8c97-390bbfedd778",
+              "type": "enterVehicle",
+              "crewPosition": [
+                "local crewPositions = arg.orderData.vehicle:GetCrewPositions()",
+                "for i, crewPos in ipairs(crewPositions) do",
+                "    if crewPos:GetRole() == VehicleRole.Driver then",
+                "       return crewPos",
+                "    end",
+                "end"
+              ]
+            },
+            {
+              "name": "reset heading",
+              "id": "2a411e40-20df-4345-8e61-0b2b2e4f1e55",
+              "type": "scriptAction",
+              "script": [
+                "self:ReqHeadingAbs(arg.orderData.vehicle:GetHeading())"
+              ]
+            }
+          ],
+          "decorators": [
+            {
+              "id": "cc28d133-ed17-48ac-b780-cedfe5705042",
+              "type": "scriptCondition",
+              "name": "driver?",
+              "script": [
+                "return (arg.orderData.vehicleRole == VehicleRole.Driver) or (arg.orderData.anyCrew == true) "
+              ]
+            }
+          ]
+        },
+        {
+          "name": "mount as gunner",
+          "id": "60f7a46f-674a-49d2-8707-45d67e5da2c8",
+          "type": "enterVehicle",
+          "decorators": [
+            {
+              "id": "6adceefb-0f92-4ffc-9b8b-8e10890f7ea5",
+              "type": "scriptCondition",
+              "name": "gunner?",
+              "script": [
+                "return (arg.orderData.vehicleRole == VehicleRole.Gunner)  or (arg.orderData.anyCrew == true)"
+              ]
+            }
+          ],
+          "crewPosition": [
+            "local crewPositions = arg.orderData.vehicle:GetCrewPositions()",
+            "for i, crewPos in ipairs(crewPositions) do",
+            "    if crewPos:GetRole() == VehicleRole.Gunner then",
+            "       return crewPos",
+            "    end",
+            "end"
+          ]
+        },
+        {
+          "name": "mount as commander",
+          "id": "57700727-f7d5-40e5-9796-04834ad654be",
+          "type": "enterVehicle",
+          "decorators": [
+            {
+              "id": "c6ac807b-4438-4275-ba41-ccae1cc2c0bd",
+              "type": "scriptCondition",
+              "name": "commander?",
+              "script": [
+                "return (arg.orderData.vehicleRole == VehicleRole.Commander ) or (arg.orderData.anyCrew == true)"
+              ]
+            }
+          ],
+          "crewPosition": [
+            "local crewPositions = arg.orderData.vehicle:GetCrewPositions()",
+            "for i, crewPos in ipairs(crewPositions) do",
+            "    if crewPos:GetRole() == VehicleRole.Commander then",
+            "       return crewPos",
+            "    end",
+            "end"
+          ]
+        },
+        {
+          "name": "mount as cargo",
+          "id": "caf27653-cdcc-4c88-b4fc-0b114e20d173",
+          "type": "enterVehicle",
+          "crewPosition": [
+            "local crewPositions = arg.orderData.vehicle:GetCrewPositions()",
+            "for i, crewPos in ipairs(crewPositions) do",
+            "    if crewPos:GetRole() == VehicleRole.Cargo and not crewPos:GetOccupant():Valid() then",
+            "       return crewPos",
+            "    end",
+            "end"
+          ]
+        }
+      ],
+      "active": false
+    },
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "45157321-2afe-4d07-8d5d-df6de105ac24",
+      "type": "scriptAction",
+      "script": [
+        "local receivers = message.MakeListOfReceivers(arg.orderData)",
+        "",
+        "message.ReportOrderCompleted(receivers, arg.orderData)"
+      ]
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "PLACEHOLDER: Set visibility",
+      "id": "d7ab798a-a6bb-4788-b56a-184c6aba0800",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "d7ab798a-a6bb-4788-b56a-184c6aba0800",
+            "position": "2062.5,588.571428571429"
+          }
+        ],
+        "editorObjects": []
+      }
+    },
+    {
+      "name": "PLACEHOLDER: Set speed",
+      "id": "b7f5df5c-01d6-4143-927c-a59b7a6ea7d3",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "b7f5df5c-01d6-4143-927c-a59b7a6ea7d3",
+            "position": "1587.5,576.071428571429"
+          }
+        ],
+        "editorObjects": []
+      }
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "1933757a-ae67-4a3e-a69d-49a5e1af2d80",
+        "position": "2025,351.071428571429"
+      },
+      {
+        "id": "b360f034-d706-435a-97e3-bc7c9ee8ba0e",
+        "position": "2312.25,566.471428571429"
+      },
+      {
+        "id": "b8104ff7-03f5-4de6-ae90-02fee0338e11",
+        "position": "1825,576.071428571429"
+      },
+      {
+        "id": "1fe64d40-11f8-4998-9287-e7b2ee3369e6",
+        "position": "1200,863.571428571429"
+      },
+      {
+        "id": "00bcfb27-10e1-4f4b-8fa8-f16f86c38e1f",
+        "position": "1450,863.571428571429"
+      },
+      {
+        "id": "52dca48f-7a7f-4cc8-8d26-7c77296a1da4",
+        "position": "1725,863.571428571429"
+      },
+      {
+        "id": "d7726fa2-3744-472f-8c97-390bbfedd778",
+        "position": "1575,1038.57142857143"
+      },
+      {
+        "id": "2a411e40-20df-4345-8e61-0b2b2e4f1e55",
+        "position": "1775,1038.57142857143"
+      },
+      {
+        "id": "60f7a46f-674a-49d2-8707-45d67e5da2c8",
+        "position": "1912.5,863.571428571429"
+      },
+      {
+        "id": "57700727-f7d5-40e5-9796-04834ad654be",
+        "position": "2100,863.571428571429"
+      },
+      {
+        "id": "caf27653-cdcc-4c88-b4fc-0b114e20d173",
+        "position": "2337.5,913.571428571429"
+      },
+      {
+        "id": "45157321-2afe-4d07-8d5d-df6de105ac24",
+        "position": "2325,601.071428571429"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "b360f034-d706-435a-97e3-bc7c9ee8ba0e",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 193.0,
+        "height": 93.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3840,2788.57142857143",
+    "gridPadding": "0,1.07142857142856"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}

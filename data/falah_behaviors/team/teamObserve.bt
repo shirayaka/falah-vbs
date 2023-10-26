@@ -1,0 +1,717 @@
+{
+  "name": "find and draw",
+  "id": "480dd8df-ed42-4213-a152-48817ab6177e",
+  "type": "supervisedParallel",
+  "subtrees": [
+    {
+      "name": "update or wait",
+      "id": "543badd5-ed31-417b-8b17-444cd377bbb1",
+      "type": "selector",
+      "subtrees": [
+        {
+          "name": "Move to new covers for team",
+          "id": "b6c873f5-a973-45bf-9ea8-e1e38f75e336",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "prepare queryParams",
+              "id": "d5bfa525-d7fd-4696-8551-a2b812cef032",
+              "type": "scriptAction",
+              "script": [
+                "local listOfSoldiers = orbat.GetChildElements()",
+                "",
+                "-- CONSTANTS",
+                "local DEBUG = false",
+                "local SEARCH_AREA_WIDTH = 15 + #listOfSoldiers*3",
+                "local SEARCH_AREA_HEIGHT = 6 + #listOfSoldiers*3",
+                "",
+                "local heading = loc.heading",
+                "local position = loc.position",
+                "",
+                "-- THREATS",
+                "-- FAKE THREAT \"IN DIRECTION OF SECURE\" FOR COVER QUERY",
+                "local FAKE_THREAT_DISTANCE = 400 -- more distant threats are better (close threat with big radius can be limiting for query)",
+                "local FAKE_THREAT_RADIUS = 20 -- size have not big impact on query if not close",
+                "local headingVector = Vec3(0,1,0):RotatedAroundZ(heading)",
+                "local threatPosition = position + (FAKE_THREAT_DISTANCE * headingVector)",
+                "local threats = {",
+                "    {",
+                "        area = Circle(threatPosition, FAKE_THREAT_RADIUS),",
+                "        avoidance = 5,",
+                "    }",
+                "}",
+                "",
+                "-- STARTING POSITIONS",
+                "local count = self:GetEntityCount()",
+                "local pointman = self:GetEntity(0)",
+                "local startingSoldiersPositons = {}",
+                "local randomFormation = {}",
+                "for i=1, count do",
+                "    --randomFormation[i] = Vec3(math.random(SEARCH_AREA_WIDTH) - SEARCH_AREA_WIDTH/2, math.random(SEARCH_AREA_HEIGHT) - SEARCH_AREA_HEIGHT/2, 0)",
+                "    randomFormation[i] = Vec3(0,SEARCH_AREA_HEIGHT/2,0):RotatedAroundZ(360/count * i-1) -- if you fear of randomization",
+                "    -- also some suggested formation can be used as input",
+                "end",
+                "",
+                "for i=0, count-1 do",
+                "    local entity = self:GetEntity(i)",
+                "    -- local unitOffset = entity:GetPosition() - pointman:GetPosition()",
+                "    ",
+                "     startingSoldiersPositons[#startingSoldiersPositons+1] = position + randomFormation[i+1]",
+                "    --startingSoldiersPositons[#startingSoldiersPositons+1] = arg.orderData.position + unitOffset",
+                "    --startingSoldiersPositons[#startingSoldiersPositons+1] = arg.orderData.position",
+                "    --startingSoldiersPositons[#startingSoldiersPositons+1] = entity:GetPosition()",
+                "end",
+                "",
+                "-- SEARCH AREA",
+                "local searchArea = Circle(position, SEARCH_AREA_WIDTH)",
+                "local searchArea = OrientedRectangle(position, SEARCH_AREA_WIDTH, SEARCH_AREA_HEIGHT, heading)",
+                "",
+                "-- SEARCH PARAMETERS",
+                "local searchParams = { ",
+                "    weights = {",
+                "        distance = -2, ",
+                "        protection = 20, ",
+                "        lineOfFire = 15,",
+                "    }, ",
+                "    constraints = {",
+                "        coneOfFire = 2",
+                "    }",
+                "}",
+                "",
+                "loc.queryParams = {",
+                "    threats, -- threats",
+                "    searchArea, -- area to search in",
+                "    startingSoldiersPositons, -- positions of soldiers (real or virtual)",
+                "    searchParams -- optional",
+                "}",
+                "",
+                "if (arg.orderData.debug == 1) then",
+                "    vbsCon.DebugTable(loc.queryParams)",
+                "end",
+                "",
+                "-- DEBUG",
+                "loc.debugLines = {} ",
+                "if (arg.orderData.debugEnabled) then",
+                "    local widthRotated = Vec3(SEARCH_AREA_WIDTH/2, 0, 0):RotatedAroundZ(heading)",
+                "    local hieghtRotated = Vec3(0, SEARCH_AREA_HEIGHT/2, 0):RotatedAroundZ(heading)",
+                "    local heightOffset = Vec3(0,0,2)",
+                "    local topLeft = position + widthRotated + hieghtRotated + heightOffset",
+                "    local topRight = position - widthRotated + hieghtRotated + heightOffset",
+                "    local bottomLeft = position + widthRotated - hieghtRotated + heightOffset",
+                "    local bottomRight = position - widthRotated - hieghtRotated + heightOffset",
+                "",
+                "    loc.debugLines[#loc.debugLines + 1] = {topLeft, topRight, 1, 0, 0, 0.4}",
+                "    loc.debugLines[#loc.debugLines + 1] = {topRight, bottomRight, 1, 1, 1, 0.2}",
+                "    loc.debugLines[#loc.debugLines + 1] = {bottomRight, bottomLeft, 1, 1, 1, 0.2}",
+                "    loc.debugLines[#loc.debugLines + 1] = {bottomLeft, topLeft, 1, 1, 1, 0.2}",
+                "",
+                "    for i=1, #startingSoldiersPositons do",
+                "        loc.debugLines[#loc.debugLines + 1] = {startingSoldiersPositons[i], startingSoldiersPositons[i]+Vec3(0,0,1), 0, 0.6, 0.6, 0.2}",
+                "    end",
+                "end"
+              ]
+            },
+            {
+              "name": "FindCovers",
+              "id": "fa662838-c7ec-452f-bb1a-a4ee57061993",
+              "type": "scriptAction",
+              "script": [
+                "loc.coversMultipleDirections = {}",
+                "",
+                "-- default query",
+                "loc.coversMultipleDirections[1] = FindCovers(",
+                "    loc.queryParams[1], -- threats",
+                "    loc.queryParams[2], -- area to search in",
+                "    loc.queryParams[3], -- positions of soldiers (real or virtual)",
+                "    loc.queryParams[4] -- optional",
+                ")",
+                "",
+                "-- @description Takes threats and rotate them by given heading",
+                "-- @argument threats [table] threats table as defined in manual of VBS Control Editor > Lua Scripting Reference > Brain > SetThreats",
+                "-- @argument centralPosition [Vec3] position around which we rotate the threats",
+                "-- @argument heading [number] rotation angle",
+                "local function RotateThreats(threats, centralPosition, heading)",
+                "    local newThreats = {}",
+                "",
+                "    for i=1, #threats do",
+                "        local thisThreat = threats[i]",
+                "        if thisThreat.area ~= nil then -- non-global threat, defined by Circle",
+                "            local thisThreatCenter = thisThreat.area:Center()",
+                "            local thisThreatRadius = thisThreat.area:Radius()",
+                "                ",
+                "            local oldThreatVector = thisThreatCenter - centralPosition",
+                "            local newThreatCenter = centralPosition + oldThreatVector:RotatedAroundZ(heading)",
+                "",
+                "            newThreats[i] = {avoidance = thisThreat.avoidance, area = Circle(newThreatCenter, thisThreatRadius)}",
+                "        else -- global threat",
+                "            newThreats[i] = {avoidance = thisThreat.avoidance}",
+                "        end",
+                "    end",
+                "",
+                "    return newThreats",
+                "end",
+                "",
+                "-- @description Each position in a list is translated by given vector.",
+                "-- @argument positions [list of Vec3] positions to be translated",
+                "-- @argument relativeVector [Vec3] vector to be added",
+                "local function MovePositions(positions, relativeVector)",
+                "    local newPositions = {}",
+                "",
+                "    for i=1, #positions do",
+                "        newPositions[i] = positions[i] + relativeVector",
+                "    end",
+                "",
+                "    return newPositions",
+                "end",
+                "",
+                "-- randomly rotated queries on the original poisition",
+                "for i=2, math.min(loc.directions,5) do",
+                "    loc.coversMultipleDirections[i] = FindCovers(",
+                "        RotateThreats(loc.queryParams[1], loc.position, math.random(-45, 45)), -- threats",
+                "        loc.queryParams[2], -- area to search in",
+                "        loc.queryParams[3], -- positions of soldiers (real or virtual)",
+                "        loc.queryParams[4] -- optional",
+                "    )",
+                "end",
+                "",
+                "-- if directions is bigger than 5, we also randomize a bit the central position, while prefering posititions in direction of heading",
+                "for i=6, loc.directions do",
+                "    local headingVector = Vec3(0,1,0):RotatedAroundZ(loc.heading)",
+                "    local randomOffset = math.random(i) * headingVector + math.random(-5,5) * Vec3(1,0,0):RotatedAroundZ(loc.heading)",
+                "    loc.coversMultipleDirections[i] = FindCovers(",
+                "        RotateThreats(loc.queryParams[1],loc.position, math.random(-45, 45)), -- threats",
+                "        loc.queryParams[2], -- area to search in",
+                "        MovePositions(loc.queryParams[3], Vec3(0,math.random(3,3+i*3),0)), -- positions of soldiers (real or virtual)",
+                "        loc.queryParams[4] -- optional",
+                "    )",
+                "end"
+              ]
+            },
+            {
+              "name": "Covers Ready",
+              "id": "0950424a-521b-413c-8e74-24cb2357366a",
+              "type": "waitUntil",
+              "condition": [
+                "local ready = true",
+                "",
+                "for i=1, #loc.coversMultipleDirections do",
+                "    if not loc.coversMultipleDirections[i]:IsReady() then",
+                "        ready = false",
+                "        break",
+                "    end",
+                "end",
+                "",
+                "if ready then",
+                "    for i=1, #loc.coversMultipleDirections do",
+                "        loc.coversMultipleDirections[i] = loc.coversMultipleDirections[i]:Value()",
+                "    end",
+                "end",
+                "",
+                "return ready"
+              ]
+            },
+            {
+              "name": "Pick the best covers set",
+              "id": "1964adfd-d342-4992-9aa2-cdfb8e52e3c0",
+              "type": "scriptAction",
+              "script": [
+                "-- pick the best covers",
+                "",
+                "local backupCoversList = {}",
+                "local ACCEPTABLE_COVER_DIFF = 2.5 -- less than one floor, bigger diffs are penalized",
+                "local DIFFERENT_COVER_DISTANCE = 1.5",
+                "",
+                "local position = loc.position",
+                "",
+                "local coversTable = {}",
+                "for i=1, loc.directions do",
+                "    coversTable[i] = loc.coversMultipleDirections[i]",
+                "end",
+                "",
+                "coversTable[#coversTable+1] = backupCoversList",
+                "",
+                "local heightDiffs = {}",
+                "-- init heightDiffs",
+                "for i=1, loc.directions do",
+                "    heightDiffs[i] = 0",
+                "end",
+                "",
+                "local referencePosition = position",
+                "",
+                "for i=1, loc.directions do",
+                "    local thisCoversTable = coversTable[i]",
+                "    local coverSetDiff = 0",
+                "    ",
+                "    for j=1, #thisCoversTable do",
+                "        local thisCoverPosition = thisCoversTable[j].position",
+                "        local oneCoverDiff = math.abs(referencePosition:Z() - thisCoverPosition:Z())",
+                "        coverSetDiff = coverSetDiff + oneCoverDiff",
+                "        ",
+                "        if oneCoverDiff < ACCEPTABLE_COVER_DIFF then",
+                "            local notSame = true",
+                "            for b=1, #backupCoversList do",
+                "                if backupCoversList[b].position:DistanceXY(thisCoverPosition) < DIFFERENT_COVER_DISTANCE then",
+                "                    notSame = false",
+                "                    break",
+                "                end",
+                "            end",
+                "",
+                "            if notSame then",
+                "                backupCoversList[#backupCoversList + 1] = thisCoversTable[j]",
+                "            end",
+                "        end",
+                "    end",
+                "    ",
+                "    heightDiffs[i] = coverSetDiff",
+                "end",
+                "",
+                "if (arg.orderData.debugEnabled) then",
+                "    vbsCon.Debug(\"Height diffs\")",
+                "    vbsCon.DebugTable(heightDiffs)",
+                "    vbsCon.Debug(\"# of fallback covers: \" .. #backupCoversList)",
+                "end",
+                "",
+                "-- pick covers with the smallest diff",
+                "local smallestDiff = math.huge",
+                "for i=1, #heightDiffs do",
+                "    if (heightDiffs[i] < smallestDiff) then",
+                "        smallestDiff = heightDiffs[i]",
+                "        loc.covers = coversTable[i]",
+                "    end",
+                "end",
+                "",
+                "-- alternative pick",
+                "if smallestDiff > ACCEPTABLE_COVER_DIFF and #backupCoversList >= #coversTable[1] then",
+                "    loc.covers = backupCoversList",
+                "end"
+              ]
+            },
+            {
+              "name": "s=1",
+              "id": "a069377d-30d7-457f-a3d4-0d866d923e30",
+              "type": "scriptAction",
+              "script": [
+                "loc.s = 1"
+              ]
+            },
+            {
+              "name": "old vbs, no var",
+              "id": "2a0dc839-694f-413d-a050-3f0d83e9e30e",
+              "type": "sequence",
+              "subtrees": [
+                {
+                  "name": "Send Msg To Soldiers",
+                  "id": "b40fee48-c77f-42d1-baa0-a9ba7a66996b",
+                  "type": "scriptAction",
+                  "script": [
+                    "loc.childElementsInPositions = InternalTable()",
+                    "local listOfSoldiers = orbat.GetChildElements()",
+                    "",
+                    "-- if override from outside",
+                    "if arg.orderData.listOfSpecificSoldiers ~= nil then",
+                    "    listOfSoldiers = arg.orderData.listOfSpecificSoldiers",
+                    "end",
+                    "",
+                    "local soldier = listOfSoldiers[loc.s]",
+                    "local cover = loc.covers[loc.s]",
+                    "",
+                    "if soldier:Valid() and soldier:IsAlive() then ",
+                    "    message.SendOrder(",
+                    "        soldier, -- receiver",
+                    "        arg.orderData.childElementBtset, -- btset",
+                    "        \"occupy\", -- behaviorName",
+                    "        { -- behaviorParameters",
+                    "            -- mandatory",
+                    "            position = cover.position,",
+                    "            -- optional",
+                    "            reportCompletedToParent = true,",
+                    "        },",
+                    "        arg.orderData -- copy of current level orderData",
+                    "        -- presetName (optional)",
+                    "        -- overrides",
+                    "    )",
+                    "    loc.childElementsInPositions[soldier] = false",
+                    "",
+                    "end"
+                  ]
+                },
+                {
+                  "name": "s=s+1",
+                  "id": "bcaa5a16-039e-4b79-8c1e-ff75246b8e6a",
+                  "type": "scriptAction",
+                  "script": [
+                    "loc.s = loc.s +1"
+                  ]
+                },
+                {
+                  "name": "3-8s",
+                  "id": "fc67df88-e8e2-4312-a35b-99d84e12ce4d",
+                  "type": "wait",
+                  "time": [
+                    "return math.random(5) +2"
+                  ]
+                }
+              ],
+              "decorators": [
+                {
+                  "id": "3c020157-00ce-4573-8f3f-f34c9f613498",
+                  "type": "countedLoop",
+                  "name": "#listOfSoldiers",
+                  "count": [
+                    "return #orbat.GetChildElements()"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "headingReset",
+              "id": "cbdb1c00-3e72-4bbf-9951-677db2cce3f1",
+              "type": "scriptAction",
+              "script": [
+                "loc.headingReset = false"
+              ]
+            },
+            {
+              "name": "Wait Forever",
+              "id": "3dd8bcd1-955c-4759-b084-002ae893ebbd",
+              "type": "waitForever"
+            }
+          ],
+          "decorators": [
+            {
+              "id": "bcd6f71e-c2a9-4bfa-a724-ae23ef93ffc1",
+              "type": "valueComparison",
+              "name": "headingReset",
+              "operator": "equal",
+              "lhs": {
+                "type": "local",
+                "key": "headingReset"
+              },
+              "rhs": {
+                "type": "boolean",
+                "value": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Wait Forever",
+          "id": "edeb3003-aea0-4f86-8c80-5dccda942310",
+          "type": "waitForever"
+        }
+      ],
+      "active": true
+    },
+    {
+      "name": "DEBUG chosen covers",
+      "id": "93e0f388-c364-4cde-aa8b-55cc3d304622",
+      "type": "scriptAction",
+      "script": [
+        "--if (arg.orderData.debugEnabled) then",
+        "if true then",
+        "    ",
+        "    -- debug covers",
+        "    local debugCenter = loc.position",
+        "    if loc.covers ~= nil then",
+        "        if #loc.covers > 0 then",
+        "            for i=1, #loc.covers do",
+        "                local thisCover = loc.covers[i]",
+        "                DebugLine(debugCenter, thisCover.firingPosition, 1, 1, 0, 0.2)",
+        "                DebugLine(thisCover.position, thisCover.firingPosition, 0, 0, 1, 0.5) ",
+        "            end",
+        "        end",
+        "    end",
+        "",
+        "    -- draw all other lines in buffer",
+        "    for i=1, #loc.debugLines do",
+        "        local thisLine = loc.debugLines[i]",
+        "        DebugLine(",
+        "            thisLine[1], -- start",
+        "            thisLine[2], -- end",
+        "            thisLine[3], -- r",
+        "            thisLine[4], -- g",
+        "            thisLine[5], -- b",
+        "            thisLine[6]  -- a",
+        "        )",
+        "    end",
+        "end"
+      ]
+    },
+    {
+      "name": "rotation check",
+      "id": "6f5df56f-7301-45b2-8ec2-b3375fc407ca",
+      "type": "sequence",
+      "subtrees": [
+        {
+          "name": "check if reactionStarted",
+          "id": "a6655e49-2c17-429f-b87a-131957e6b93f",
+          "type": "scriptAction",
+          "script": [
+            "-- temporary distance check, later use path",
+            "local enemiesVector = Vec3(0,0,0)",
+            "--DebugLog(tostring(arg.orderData.position))",
+            "local counter = 0",
+            "for i, enemy in ipairs( GetEntitiesInArea( Circle(loc.position, 200) , { enemyOf = orbat.GetChildElements()[1] }) ) do",
+            "    -- if enemy:Valid() and enemy:IsAlive() then",
+            "        enemiesVector = enemiesVector + (enemy:GetPosition() - loc.position)",
+            "        counter = counter + 1",
+            "    -- end",
+            "end",
+            "",
+            "if counter > 0 then",
+            "    local enemiesNewHeading = MathExt.Vec3ToHeading(enemiesVector)",
+            "    if (math.abs(enemiesNewHeading - loc.heading) > 45) then",
+            "        loc.heading = enemiesNewHeading",
+            "        loc.headingReset = true",
+            "    end",
+            "end"
+          ]
+        },
+        {
+          "name": "prepare queryParams",
+          "id": "ae8a9e76-af84-44e5-b68a-6d444b1c5017",
+          "type": "scriptAction",
+          "script": [
+            "local listOfSoldiers = orbat.GetChildElements()",
+            "",
+            "-- CONSTANTS",
+            "local DEBUG = false",
+            "local SEARCH_AREA_WIDTH = 15 + #listOfSoldiers*3",
+            "local SEARCH_AREA_HEIGHT = 6 + #listOfSoldiers*3",
+            "",
+            "local heading = loc.heading",
+            "local position = loc.position",
+            "",
+            "-- THREATS",
+            "-- FAKE THREAT \"IN DIRECTION OF SECURE\" FOR COVER QUERY",
+            "local FAKE_THREAT_DISTANCE = 400 -- more distant threats are better (close threat with big radius can be limiting for query)",
+            "local FAKE_THREAT_RADIUS = 20 -- size have not big impact on query if not close",
+            "local headingVector = Vec3(0,1,0):RotatedAroundZ(heading)",
+            "local threatPosition = position + (FAKE_THREAT_DISTANCE * headingVector)",
+            "local threats = {",
+            "    {",
+            "        area = Circle(threatPosition, FAKE_THREAT_RADIUS),",
+            "        avoidance = 5,",
+            "    }",
+            "}",
+            "",
+            "-- STARTING POSITIONS",
+            "local count = self:GetEntityCount()",
+            "local pointman = self:GetEntity(0)",
+            "local startingSoldiersPositons = {}",
+            "local randomFormation = {}",
+            "for i=1, count do",
+            "    --randomFormation[i] = Vec3(math.random(SEARCH_AREA_WIDTH) - SEARCH_AREA_WIDTH/2, math.random(SEARCH_AREA_HEIGHT) - SEARCH_AREA_HEIGHT/2, 0)",
+            "    randomFormation[i] = Vec3(0,SEARCH_AREA_HEIGHT/2,0):RotatedAroundZ(360/count * i-1) -- if you fear of randomization",
+            "    -- also some suggested formation can be used as input",
+            "end",
+            "",
+            "for i=0, count-1 do",
+            "    local entity = self:GetEntity(i)",
+            "    -- local unitOffset = entity:GetPosition() - pointman:GetPosition()",
+            "    ",
+            "     startingSoldiersPositons[#startingSoldiersPositons+1] = position + randomFormation[i+1]",
+            "    --startingSoldiersPositons[#startingSoldiersPositons+1] = arg.orderData.position + unitOffset",
+            "    --startingSoldiersPositons[#startingSoldiersPositons+1] = arg.orderData.position",
+            "    --startingSoldiersPositons[#startingSoldiersPositons+1] = entity:GetPosition()",
+            "end",
+            "",
+            "-- SEARCH AREA",
+            "local searchArea = Circle(position, SEARCH_AREA_WIDTH)",
+            "local searchArea = OrientedRectangle(position, SEARCH_AREA_WIDTH, SEARCH_AREA_HEIGHT, heading)",
+            "",
+            "-- SEARCH PARAMETERS",
+            "local searchParams = { ",
+            "    weights = {",
+            "        distance = -2, ",
+            "        protection = 20, ",
+            "        lineOfFire = 15,",
+            "    }, ",
+            "    constraints = {",
+            "        coneOfFire = 2",
+            "    }",
+            "}",
+            "",
+            "loc.queryParams = {",
+            "    threats, -- threats",
+            "    searchArea, -- area to search in",
+            "    startingSoldiersPositons, -- positions of soldiers (real or virtual)",
+            "    searchParams -- optional",
+            "}",
+            "",
+            "if (arg.orderData.debug == 1) then",
+            "    vbsCon.DebugTable(loc.queryParams)",
+            "end",
+            "",
+            "-- DEBUG",
+            "loc.debugLines = {} ",
+            "if (arg.orderData.debugEnabled) then",
+            "    local widthRotated = Vec3(SEARCH_AREA_WIDTH/2, 0, 0):RotatedAroundZ(heading)",
+            "    local hieghtRotated = Vec3(0, SEARCH_AREA_HEIGHT/2, 0):RotatedAroundZ(heading)",
+            "    local heightOffset = Vec3(0,0,2)",
+            "    local topLeft = position + widthRotated + hieghtRotated + heightOffset",
+            "    local topRight = position - widthRotated + hieghtRotated + heightOffset",
+            "    local bottomLeft = position + widthRotated - hieghtRotated + heightOffset",
+            "    local bottomRight = position - widthRotated - hieghtRotated + heightOffset",
+            "",
+            "    loc.debugLines[#loc.debugLines + 1] = {topLeft, topRight, 1, 0, 0, 0.4}",
+            "    loc.debugLines[#loc.debugLines + 1] = {topRight, bottomRight, 1, 1, 1, 0.2}",
+            "    loc.debugLines[#loc.debugLines + 1] = {bottomRight, bottomLeft, 1, 1, 1, 0.2}",
+            "    loc.debugLines[#loc.debugLines + 1] = {bottomLeft, topLeft, 1, 1, 1, 0.2}",
+            "",
+            "    for i=1, #startingSoldiersPositons do",
+            "        loc.debugLines[#loc.debugLines + 1] = {startingSoldiersPositons[i], startingSoldiersPositons[i]+Vec3(0,0,1), 0, 0.6, 0.6, 0.2}",
+            "    end",
+            "end"
+          ]
+        },
+        {
+          "name": "4",
+          "id": "9d21002a-2074-48e6-a9af-eec4ae0dc8dd",
+          "type": "wait",
+          "time": [
+            "return 4"
+          ]
+        }
+      ]
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "childElementsInPositions",
+      "id": "b4a3bfe6-3042-4597-b9a6-2875e9ee5acd",
+      "type": "waitUntil",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "b4a3bfe6-3042-4597-b9a6-2875e9ee5acd",
+            "position": "1686.86666666667,1205.66071428571"
+          }
+        ],
+        "editorObjects": []
+      },
+      "condition": [
+        "local inPositionCounter = 0",
+        "local childElementsCounter = 0",
+        "",
+        "for childElement, inPosition in pairs(loc.childElementsInPositions) do",
+        "    if (childElement:Valid() and childElement:IsAlive()) then",
+        "        if (inPosition) then",
+        "            inPositionCounter = inPositionCounter + 1",
+        "        end",
+        "        childElementsCounter = childElementsCounter + 1",
+        "    end",
+        "end",
+        "",
+        "return inPositionCounter == childElementsCounter"
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "480dd8df-ed42-4213-a152-48817ab6177e",
+        "position": "2249.36666666667,480.660714285714"
+      },
+      {
+        "id": "543badd5-ed31-417b-8b17-444cd377bbb1",
+        "position": "2249.36666666667,805.660714285714"
+      },
+      {
+        "id": "b6c873f5-a973-45bf-9ea8-e1e38f75e336",
+        "position": "1261.86666666667,1030.66071428571"
+      },
+      {
+        "id": "d5bfa525-d7fd-4696-8551-a2b812cef032",
+        "position": "436.866666666667,1193.16071428571"
+      },
+      {
+        "id": "fa662838-c7ec-452f-bb1a-a4ee57061993",
+        "position": "636.866666666667,1193.16071428571"
+      },
+      {
+        "id": "0950424a-521b-413c-8e74-24cb2357366a",
+        "position": "811.866666666667,1193.16071428571"
+      },
+      {
+        "id": "1964adfd-d342-4992-9aa2-cdfb8e52e3c0",
+        "position": "1024.36666666667,1193.16071428571"
+      },
+      {
+        "id": "a069377d-30d7-457f-a3d4-0d866d923e30",
+        "position": "1261.86666666667,1193.16071428571"
+      },
+      {
+        "id": "2a0dc839-694f-413d-a050-3f0d83e9e30e",
+        "position": "1464.86666666667,1200.66071428571"
+      },
+      {
+        "id": "b40fee48-c77f-42d1-baa0-a9ba7a66996b",
+        "position": "1336.86666666667,1330.66071428571"
+      },
+      {
+        "id": "bcaa5a16-039e-4b79-8c1e-ff75246b8e6a",
+        "position": "1511.86666666667,1330.66071428571"
+      },
+      {
+        "id": "fc67df88-e8e2-4312-a35b-99d84e12ce4d",
+        "position": "1674.36666666667,1330.66071428571"
+      },
+      {
+        "id": "cbdb1c00-3e72-4bbf-9951-677db2cce3f1",
+        "position": "1924.36666666667,1205.66071428571"
+      },
+      {
+        "id": "3dd8bcd1-955c-4759-b084-002ae893ebbd",
+        "position": "2124.36666666667,1193.16071428571"
+      },
+      {
+        "id": "edeb3003-aea0-4f86-8c80-5dccda942310",
+        "position": "2261.86666666667,993.160714285714"
+      },
+      {
+        "id": "93e0f388-c364-4cde-aa8b-55cc3d304622",
+        "position": "2599.36666666667,605.660714285714"
+      },
+      {
+        "id": "6f5df56f-7301-45b2-8ec2-b3375fc407ca",
+        "position": "2599.36666666667,705.660714285714"
+      },
+      {
+        "id": "a6655e49-2c17-429f-b87a-131957e6b93f",
+        "position": "2599.36666666667,793.160714285714"
+      },
+      {
+        "id": "ae8a9e76-af84-44e5-b68a-6d444b1c5017",
+        "position": "2786.86666666667,793.160714285714"
+      },
+      {
+        "id": "9d21002a-2074-48e6-a9af-eec4ae0dc8dd",
+        "position": "2974.36666666667,793.160714285714"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "4451.86666666667,2718.16071428571",
+    "gridPadding": "11.8666666666668,5.66071428571433"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "childElementsInPositions": "return InternalTable()",
+    "queryParams": "return {}",
+    "directions": "return 3",
+    "covers": "return {}",
+    "coversMultipleDirections": "return {}",
+    "debugLines": "return {}",
+    "filteredCovers": "return {}",
+    "s": "return 1",
+    "heading": "return arg.orderData.heading or arg.orderData.azimut or 0",
+    "headingReset": "return true",
+    "position": "return arg.orderData.position or orbat.GetChildElements()[1]:GetPosition()"
+  }
+}

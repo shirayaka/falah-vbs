@@ -1,0 +1,192 @@
+{
+  "name": "dismount & listen",
+  "id": "d399b31b-0158-4f3f-a30e-84b7167e2e15",
+  "type": "supervisedParallel",
+  "subtrees": [
+    {
+      "name": "dismount",
+      "id": "cfa27f5e-c8c3-4592-9e9f-df1ea24e92fe",
+      "type": "sequence",
+      "subtrees": [
+        {
+          "name": "MSG: NewOrder to soldiers",
+          "id": "5e5cab0b-3d92-44a6-bcb8-f61894d397bf",
+          "type": "scriptAction",
+          "script": [
+            "loc.childElementsInPositions = InternalTable()",
+            "local listOfSoldiers = orbat.GetChildElements()",
+            "",
+            "for i=1, #listOfSoldiers do",
+            "    message.SendOrder(",
+            "        listOfSoldiers[i], -- receiver",
+            "        arg.orderData.childElementBtset, -- btset",
+            "        \"dismount\", -- behaviorName",
+            "        { -- behaviorParameters",
+            "            -- mandatory",
+            "            position = listOfSoldiers[i]:GetPosition() + Vec3(math.random(5,10), math.random(-10,10), 0), -- just random spread now",
+            "        },",
+            "        arg.orderData -- copy of current level orderData",
+            "        -- presetName (optional)",
+            "        -- overrides",
+            "    )",
+            "",
+            "    loc.childElementsInPositions[listOfSoldiers[i]] = false",
+            "end"
+          ]
+        },
+        {
+          "name": "childElementsInPositions",
+          "id": "f170c3d4-0cf9-4d2a-b8ee-48638ef1f2e3",
+          "type": "waitUntil",
+          "condition": [
+            "local inPositionCounter = 0",
+            "local childElementsCounter = 0",
+            "",
+            "for childElement, inPosition in pairs(loc.childElementsInPositions) do",
+            "    if (childElement:Valid() and childElement:IsAlive()) then",
+            "        if (inPosition) then",
+            "            inPositionCounter = inPositionCounter + 1",
+            "        end",
+            "        childElementsCounter = childElementsCounter + 1",
+            "    end",
+            "end",
+            "",
+            "return inPositionCounter == childElementsCounter"
+          ]
+        },
+        {
+          "name": "MSG: OrderCompleted",
+          "id": "47369464-97f8-44ed-96b2-a4fb3fe33147",
+          "type": "scriptAction",
+          "script": [
+            "local receivers = message.MakeListOfReceivers(arg.orderData)",
+            "",
+            "message.ReportOrderCompleted(receivers, arg.orderData)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OrderCompleted",
+      "id": "d6ca3fb0-a1b1-44b4-8a78-f0133a2e67a8",
+      "type": "messageHandler",
+      "handler": [
+        "loc.childElementsInPositions[msg.sender] = message.ValidateOrderCompleted(",
+        "    msg, -- full message table",
+        "    \"dismount\" -- behaviorName used in MSG sender script action",
+        ")"
+      ],
+      "subject": "OrderCompleted"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "d399b31b-0158-4f3f-a30e-84b7167e2e15",
+        "position": "1803,408.75"
+      },
+      {
+        "id": "90cfd906-9297-4f2e-be4e-d1cd8e4c05be",
+        "position": "1985,603.25"
+      },
+      {
+        "id": "09b25a88-ca6b-4a24-b5c4-5ef1e78aa8a9",
+        "position": "1535,603.25"
+      },
+      {
+        "id": "143807e7-2b64-4a34-9293-5cd6c536dd91",
+        "position": "1775,217"
+      },
+      {
+        "id": "7fecf4dd-99ce-4496-a140-f874fe2b1a6d",
+        "position": "1775,304.5"
+      },
+      {
+        "id": "cfa27f5e-c8c3-4592-9e9f-df1ea24e92fe",
+        "position": "1807,517.5"
+      },
+      {
+        "id": "5e5cab0b-3d92-44a6-bcb8-f61894d397bf",
+        "position": "1547.5,640.75"
+      },
+      {
+        "id": "f170c3d4-0cf9-4d2a-b8ee-48638ef1f2e3",
+        "position": "1787.5,642"
+      },
+      {
+        "id": "47369464-97f8-44ed-96b2-a4fb3fe33147",
+        "position": "1997.5,640.75"
+      },
+      {
+        "id": "d6ca3fb0-a1b1-44b4-8a78-f0133a2e67a8",
+        "position": "2019.5,517.5"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "90cfd906-9297-4f2e-be4e-d1cd8e4c05be",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 199.0,
+        "height": 102.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "09b25a88-ca6b-4a24-b5c4-5ef1e78aa8a9",
+        "type": "comment",
+        "header": "",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 223.0,
+        "height": 98.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "143807e7-2b64-4a34-9293-5cd6c536dd91",
+        "type": "comment",
+        "header": "Pointman exists",
+        "body": "Behavior assumes Pointman sensor returns valid value.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FFC4AA00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FFFFD700",
+        "boxForeground": "#FF000000",
+        "width": 201.0,
+        "height": 74.0
+      },
+      {
+        "id": "7fecf4dd-99ce-4496-a140-f874fe2b1a6d",
+        "type": "comment",
+        "header": "Reports success",
+        "body": "Behavior is expected to autonomously reports its success to unit which requested order.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF658720",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF9ACD32",
+        "boxForeground": "#FF000000",
+        "width": 201.0,
+        "height": 87.0
+      }
+    ],
+    "canvasSize": "3840,2742",
+    "gridPadding": "0,4.5"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "childElementsInPositions": "return nil"
+  }
+}

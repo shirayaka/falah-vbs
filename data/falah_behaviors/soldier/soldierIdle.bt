@@ -1,0 +1,112 @@
+{
+  "name": "move and observe",
+  "id": "39440b8e-6008-4088-a969-fa23cae39319",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "1-3 secs",
+      "id": "bfca64b0-1b06-40f1-8d1c-4e0355177c8e",
+      "type": "wait",
+      "time": [
+        "return math.random()*2+1"
+      ]
+    },
+    {
+      "name": "Crouched",
+      "id": "05edadf5-ef29-4dcb-a772-32af6530fab8",
+      "type": "setStance",
+      "stance": [
+        "return Stance.Crouched"
+      ]
+    },
+    {
+      "name": "1-5 secs",
+      "id": "604d31f4-9c3d-43aa-86f7-208ae176789e",
+      "type": "wait",
+      "time": [
+        "return math.random()*4+1"
+      ]
+    },
+    {
+      "name": "Reset heading",
+      "id": "d69bfd6a-c750-4774-8208-07e0ab7c2c66",
+      "type": "scriptAction",
+      "script": [
+        "self:ReqHeadingRelToMove(0)"
+      ]
+    },
+    {
+      "name": "1-5 secs",
+      "id": "5dfc4971-5a17-44fc-a641-b745c5672ee4",
+      "type": "wait",
+      "time": [
+        "return math.random()*4+1"
+      ]
+    },
+    {
+      "name": "Crouched",
+      "id": "593d9953-136b-4656-ac77-20dc02573d43",
+      "type": "setStance",
+      "stance": [
+        "return Stance.Crouched"
+      ]
+    },
+    {
+      "name": "Wait forever",
+      "id": "bcf35693-18e7-450f-ada2-ea99c77289a1",
+      "type": "waitForever"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "39440b8e-6008-4088-a969-fa23cae39319",
+        "position": "1587.5,269.641666666667"
+      },
+      {
+        "id": "bfca64b0-1b06-40f1-8d1c-4e0355177c8e",
+        "position": "1258,487.141666666667"
+      },
+      {
+        "id": "05edadf5-ef29-4dcb-a772-32af6530fab8",
+        "position": "1437.5,482.141666666667"
+      },
+      {
+        "id": "604d31f4-9c3d-43aa-86f7-208ae176789e",
+        "position": "1625,482.141666666667"
+      },
+      {
+        "id": "d69bfd6a-c750-4774-8208-07e0ab7c2c66",
+        "position": "1812.5,482.141666666667"
+      },
+      {
+        "id": "5dfc4971-5a17-44fc-a641-b745c5672ee4",
+        "position": "1975,482.141666666667"
+      },
+      {
+        "id": "593d9953-136b-4656-ac77-20dc02573d43",
+        "position": "2137.5,482.141666666667"
+      },
+      {
+        "id": "bcf35693-18e7-450f-ada2-ea99c77289a1",
+        "position": "2325,482.141666666667"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,3509.14166666667",
+    "gridPadding": "0,7.14166666666658"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "suborderData": "return nil",
+    "headingDiff": "return nil",
+    "openTerrainProbability": "0",
+    "underFireData": "return nil"
+  }
+}

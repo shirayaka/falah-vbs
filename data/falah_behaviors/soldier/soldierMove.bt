@@ -1,0 +1,520 @@
+{
+  "name": "move sequence",
+  "id": "d241077e-15b2-416e-adcf-d684bb235f72",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "primary or alternative",
+      "id": "278e5359-72d0-483e-ac85-6c80d67632d3",
+      "type": "parallel",
+      "subtrees": [
+        {
+          "name": "move",
+          "id": "6a4d1891-8c13-4f8b-bf1f-f76493c762a4",
+          "type": "supervisedParallel",
+          "subtrees": [
+            {
+              "name": "pick proper move once",
+              "id": "81e2ae54-0315-4a96-a67b-c577b470d7a2",
+              "type": "selector",
+              "subtrees": [
+                {
+                  "name": "move",
+                  "id": "e36f2e92-e987-4ebc-ab47-bfe6991731ba",
+                  "type": "move",
+                  "decorators": [
+                    {
+                      "id": "b3bde167-00b0-4faf-931d-23250f41ac1b",
+                      "type": "scriptCondition",
+                      "name": "boundaries",
+                      "script": [
+                        "return arg.orderData.boundaries ~= nil"
+                      ]
+                    },
+                    {
+                      "id": "40fe6cde-488d-4a6e-93ab-d72b4200db55",
+                      "type": "scriptCondition",
+                      "name": "movementRestrictions",
+                      "script": [
+                        "return arg.orderData.movementRestrictions ~= nil"
+                      ]
+                    }
+                  ],
+                  "position": [
+                    "return arg.orderData.position"
+                  ],
+                  "restrictions": [
+                    "return arg.orderData.movementRestrictions"
+                  ],
+                  "boundaries": [
+                    "return Polygon(arg.orderData.boundaries)"
+                  ]
+                },
+                {
+                  "name": "move",
+                  "id": "341baed3-725f-4eeb-b81e-4a169793881d",
+                  "type": "move",
+                  "decorators": [
+                    {
+                      "id": "8ca97f25-1b38-4dd0-b0f0-1b9c2292228a",
+                      "type": "scriptCondition",
+                      "name": "movementRestrictions",
+                      "script": [
+                        "return arg.orderData.movementRestrictions ~= nil"
+                      ]
+                    }
+                  ],
+                  "position": [
+                    "return arg.orderData.position"
+                  ],
+                  "restrictions": [
+                    "return arg.orderData.movementRestrictions"
+                  ]
+                },
+                {
+                  "name": "move",
+                  "id": "28f490ab-7b56-4f76-80e5-0025fcb16f2d",
+                  "type": "move",
+                  "decorators": [
+                    {
+                      "id": "e9e2fdb6-ce95-410e-bac1-571f819917f7",
+                      "type": "scriptCondition",
+                      "name": "boundaries",
+                      "script": [
+                        "return arg.orderData.boundaries ~= nil"
+                      ]
+                    }
+                  ],
+                  "position": [
+                    "return arg.orderData.position"
+                  ],
+                  "boundaries": [
+                    "return Polygon(arg.orderData.boundaries)"
+                  ]
+                },
+                {
+                  "name": "move",
+                  "id": "ab3c58ad-d8e7-434c-b598-6abfd6a1a51b",
+                  "type": "move",
+                  "position": [
+                    "return arg.orderData.position"
+                  ]
+                }
+              ],
+              "active": false
+            },
+            {
+              "name": "DEBUG: position",
+              "id": "d7bc4de6-3957-4d56-9eec-a2b5f7548d1b",
+              "type": "scriptAction",
+              "script": [
+                "if (true) then",
+                "    DebugLine(self:GetPosition() + Vec3(0,0,1.8), arg.orderData.position, 0, 0, 1)",
+                "end"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "if close",
+          "id": "e4188b1e-387c-4a7f-9cc0-45454fd33cce",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "close 2m",
+              "id": "c9f382b4-eab9-45bd-814a-9645581d1307",
+              "type": "waitUntil",
+              "condition": [
+                "return self:GetPosition():Distance(arg.orderData.position) < 2"
+              ]
+            },
+            {
+              "name": "wait 5s",
+              "id": "9405ebba-6b9c-456b-966a-45a0bdc11ec2",
+              "type": "wait",
+              "time": [
+                "return 5"
+              ]
+            }
+          ]
+        }
+      ],
+      "waitForAll": false
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "Reset heading",
+      "id": "07e6944e-0515-453f-81ac-7f6e5cdb2e6c",
+      "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "07e6944e-0515-453f-81ac-7f6e5cdb2e6c",
+            "position": "904.589285714285,756"
+          }
+        ],
+        "editorObjects": []
+      },
+      "script": [
+        "self:ReqHeadingFormationIfStationary()"
+      ]
+    },
+    {
+      "name": "(re)set stance",
+      "id": "f779ea46-302e-4600-b020-b60781296bc2",
+      "type": "setStance",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "f779ea46-302e-4600-b020-b60781296bc2",
+            "position": "1079.58928571429,756"
+          }
+        ],
+        "editorObjects": []
+      },
+      "stance": [
+        "local stance = arg.orderData.stance",
+        "local endStance = arg.orderData.endStance",
+        "local currentStance = self:GetStance()",
+        "local distanceTravelled = self:GetPosition():Distance(arg.orderData.position)",
+        "",
+        "if (stance == nil and endStance == nil) then",
+        "    stance = Stance.Standing",
+        "elseif(stance == nil and endStance ~= nil) then",
+        "    if distanceTravelled < 2 then",
+        "        stance = currentStance",
+        "    else",
+        "        stance = Stance.Standing",
+        "    end",
+        "end",
+        "",
+        "",
+        "return stance"
+      ]
+    },
+    {
+      "name": "(re)set threats",
+      "id": "daf4db4d-40bf-4956-9395-b647c1733dd8",
+      "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "daf4db4d-40bf-4956-9395-b647c1733dd8",
+            "position": "1254.58928571429,756"
+          }
+        ],
+        "editorObjects": []
+      },
+      "script": [
+        "loc.threats = arg.orderData.threats",
+        "",
+        "if (loc.threats == nil and arg.orderData.sqfThreats ~= nil) then",
+        "    loc.threats = process.SQFThreats(arg.orderData.sqfThreats)",
+        "end",
+        "",
+        "if (loc.threats ~= nil) then",
+        "    self:SetThreats(loc.threats)",
+        "    return true",
+        "end",
+        "",
+        "self:ResetThreats()",
+        "return true"
+      ]
+    },
+    {
+      "name": "DEBUG: threats",
+      "id": "cc06f5d3-13ee-4e3c-bd77-4f4609f5cc49",
+      "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "cc06f5d3-13ee-4e3c-bd77-4f4609f5cc49",
+            "position": "2192.08928571429,931"
+          }
+        ],
+        "editorObjects": []
+      },
+      "script": [
+        "if (arg.orderData.debugEnabled) then",
+        "",
+        "    local offset = Vec3(0,0,5)",
+        "",
+        "    if loc.threats ~= nil then",
+        "        for i=1, #loc.threats do",
+        "            if loc.threats[i].area ~= nil then",
+        "                draw.Circle(",
+        "                    loc.threats[i].area:Center() + offset, -- position",
+        "                    loc.threats[i].area:Radius(), -- radius",
+        "                    1, 0, 0, 1 -- RGBA",
+        "                )",
+        "            end",
+        "        end",
+        "    end",
+        "end"
+      ]
+    },
+    {
+      "name": "set end stance",
+      "id": "8eabaaf6-19b3-424a-8f6d-0a23356abec5",
+      "type": "setStance",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "8eabaaf6-19b3-424a-8f6d-0a23356abec5",
+            "position": "2054.58928571429,618.5"
+          }
+        ],
+        "editorObjects": []
+      },
+      "stance": [
+        "local stances = {",
+        "    Stance.Prone,",
+        "    Stance.Crouched",
+        "}",
+        "",
+        "return Stance.Crouched"
+      ]
+    },
+    {
+      "name": "set ReqHeadingAbs",
+      "id": "e83adad5-79db-49ae-95d1-f39e489b6a82",
+      "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "e83adad5-79db-49ae-95d1-f39e489b6a82",
+            "position": "2229.58928571429,618.5"
+          }
+        ],
+        "editorObjects": []
+      },
+      "script": [
+        "local heading = arg.orderData.heading",
+        "local parentOrderData = arg.orderData.parentOrderData",
+        "",
+        "if (heading ~= nil) then",
+        "    self:ReqHeadingAbs(heading)",
+        "elseif (parentOrderData ~= nil) then",
+        "    if (parentOrderData.heading ~= nil) then",
+        "        self:ReqHeadingAbs(parentOrderData.heading)",
+        "    end",
+        "end"
+      ]
+    },
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "c4163c99-9b8c-4cf5-aba3-95d83eef4107",
+      "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "c4163c99-9b8c-4cf5-aba3-95d83eef4107",
+            "position": "2429.58928571429,618.5"
+          }
+        ],
+        "editorObjects": []
+      },
+      "script": [
+        "local receivers = message.MakeListOfReceivers(arg.orderData)",
+        "message.ReportOrderCompleted(receivers, arg.orderData)"
+      ]
+    },
+    {
+      "name": "PLACEHOLDER: Set custom flags",
+      "id": "6b3d1afe-5bd3-4430-b6af-b972fe6b9dc2",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "6b3d1afe-5bd3-4430-b6af-b972fe6b9dc2",
+            "position": "1429.58928571429,756"
+          }
+        ],
+        "editorObjects": []
+      }
+    },
+    {
+      "name": "PLACEHOLDER: Set visibility",
+      "id": "9f933313-c39b-4689-9662-9cb5c80ab792",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "9f933313-c39b-4689-9662-9cb5c80ab792",
+            "position": "454.589285714281,756"
+          }
+        ],
+        "editorObjects": []
+      }
+    },
+    {
+      "name": "PLACEHOLDER: Set speed",
+      "id": "9ab3340c-cfb7-45b9-861d-1372e3e04f72",
+      "type": "setEntitySpeedLimits",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "9ab3340c-cfb7-45b9-861d-1372e3e04f72",
+            "position": "1367.08928571429,643.5"
+          }
+        ],
+        "editorObjects": []
+      },
+      "movementSpeed": [
+        "return 1"
+      ]
+    },
+    {
+      "name": "Prone",
+      "id": "84eedd39-9234-473b-83a6-4791da0b7c90",
+      "type": "setStance",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "84eedd39-9234-473b-83a6-4791da0b7c90",
+            "position": "1579.58928571429,643.5"
+          }
+        ],
+        "editorObjects": []
+      },
+      "stance": [
+        "return Stance.Prone"
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "d241077e-15b2-416e-adcf-d684bb235f72",
+        "position": "1817.08928571429,493.5"
+      },
+      {
+        "id": "d010b267-1ac8-459d-aa56-64d3a4ba9073",
+        "position": "2416.83928571429,583.9"
+      },
+      {
+        "id": "c42fbef2-a4a3-416a-bde7-fb340ef6dbc3",
+        "position": "434.589285714281,718.5"
+      },
+      {
+        "id": "c4677483-a67e-4248-9eca-250cb76b84fd",
+        "position": "2029.58928571429,581"
+      },
+      {
+        "id": "65e8131b-a9b4-4f38-8fc0-6f381abc49a5",
+        "position": "2179.58928571429,893.5"
+      },
+      {
+        "id": "278e5359-72d0-483e-ac85-6c80d67632d3",
+        "position": "1804.58928571429,631"
+      },
+      {
+        "id": "6a4d1891-8c13-4f8b-bf1f-f76493c762a4",
+        "position": "1817.08928571429,743.5"
+      },
+      {
+        "id": "81e2ae54-0315-4a96-a67b-c577b470d7a2",
+        "position": "1804.58928571429,931"
+      },
+      {
+        "id": "e36f2e92-e987-4ebc-ab47-bfe6991731ba",
+        "position": "1517.08928571429,1081"
+      },
+      {
+        "id": "341baed3-725f-4eeb-b81e-4a169793881d",
+        "position": "1717.08928571429,1081"
+      },
+      {
+        "id": "28f490ab-7b56-4f76-80e5-0025fcb16f2d",
+        "position": "1904.58928571429,1081"
+      },
+      {
+        "id": "ab3c58ad-d8e7-434c-b598-6abfd6a1a51b",
+        "position": "2079.58928571429,1081"
+      },
+      {
+        "id": "d7bc4de6-3957-4d56-9eec-a2b5f7548d1b",
+        "position": "2017.08928571429,931"
+      },
+      {
+        "id": "e4188b1e-387c-4a7f-9cc0-45454fd33cce",
+        "position": "2202.83928571429,735.5"
+      },
+      {
+        "id": "c9f382b4-eab9-45bd-814a-9645581d1307",
+        "position": "2204.58928571429,806"
+      },
+      {
+        "id": "9405ebba-6b9c-456b-966a-45a0bdc11ec2",
+        "position": "2367.08928571429,806"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "d010b267-1ac8-459d-aa56-64d3a4ba9073",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 193.0,
+        "height": 93.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "c42fbef2-a4a3-416a-bde7-fb340ef6dbc3",
+        "type": "comment",
+        "header": "Pre-move settings template",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 1248.9999999999996,
+        "height": 100.0,
+        "headerBackground": "#FF00FF00",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FF90EE90",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "c4677483-a67e-4248-9eca-250cb76b84fd",
+        "type": "comment",
+        "header": "Post-move settings template",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 377.57142857142856,
+        "height": 100.0,
+        "headerBackground": "#FF00FF00",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FF90EE90",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "65e8131b-a9b4-4f38-8fc0-6f381abc49a5",
+        "type": "comment",
+        "header": "Debug settings template",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 185.90476190476159,
+        "height": 100.0,
+        "headerBackground": "#FF00FF00",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FF90EE90",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3882.08928571429,2718.5",
+    "gridPadding": "4.58928571428555,6.00000000000006"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "threats": "return nil"
+  }
+}

@@ -1,0 +1,6 @@
+*.paa
+*.btproj*
+*.VBSControlEditor_suo
+*.cache
+*.btsets
+*.bt.sig

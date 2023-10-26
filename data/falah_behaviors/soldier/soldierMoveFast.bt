@@ -1,0 +1,154 @@
+{
+  "name": "move sequence",
+  "id": "21639a45-8032-4a60-8d29-ef98e93e9688",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "Set speed",
+      "id": "87b8ba9d-5830-44f1-b185-ed03fddc6e31",
+      "type": "setEntitySpeedLimits",
+      "movementSpeed": [
+        "return 4"
+      ]
+    },
+    {
+      "name": "Reset heading",
+      "id": "b088c571-d868-4c94-9ab0-aae182a07245",
+      "type": "scriptAction",
+      "script": [
+        "self:ReqHeadingFormationIfStationary()"
+      ]
+    },
+    {
+      "name": "(re)set stance",
+      "id": "61e27a59-e39a-49fd-959d-b06b57446977",
+      "type": "setStance",
+      "stance": [
+        "local stance = arg.orderData.stance",
+        "local endStance = arg.orderData.endStance",
+        "local currentStance = self:GetStance()",
+        "local distanceTravelled = self:GetPosition():Distance(arg.orderData.position)",
+        "",
+        "if (stance == nil and endStance == nil) then",
+        "    stance = Stance.Standing",
+        "elseif(stance == nil and endStance ~= nil) then",
+        "    if distanceTravelled < 2 then",
+        "        stance = currentStance",
+        "    else",
+        "        stance = Stance.Standing",
+        "    end",
+        "end",
+        "",
+        "",
+        "return stance"
+      ]
+    },
+    {
+      "name": "move & debug",
+      "id": "cac56281-f983-4cec-a1d6-39fb4d35da29",
+      "type": "supervisedParallel",
+      "subtrees": [
+        {
+          "name": "Move",
+          "id": "5f89b68e-4005-4736-b989-d42b8fb01579",
+          "type": "scriptedReference",
+          "target": "return bb.orders.move",
+          "arguments": {
+            "orderData": "return arg.orderData"
+          }
+        }
+      ]
+    },
+    {
+      "name": "set ReqHeadingAbs",
+      "id": "0c2e3ca1-cd49-4072-b770-f4815726318c",
+      "type": "scriptAction",
+      "script": [
+        "local heading = arg.orderData.heading",
+        "local parentOrderData = arg.orderData.parentOrderData",
+        "",
+        "if (heading ~= nil) then",
+        "    self:ReqHeadingAbs(heading)",
+        "elseif (parentOrderData ~= nil) then",
+        "    if (parentOrderData.heading ~= nil) then",
+        "        self:ReqHeadingAbs(parentOrderData.heading)",
+        "    end",
+        "end"
+      ]
+    },
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "7efb1c3a-17da-4a30-965c-8d70599b35bd",
+      "type": "scriptAction",
+      "script": [
+        "local receivers = message.MakeListOfReceivers(arg.orderData)",
+        "message.ReportOrderCompleted(receivers, arg.orderData)"
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "21639a45-8032-4a60-8d29-ef98e93e9688",
+        "position": "2000,415.7"
+      },
+      {
+        "id": "34bc7415-be30-4e0d-b193-92f78e304805",
+        "position": "2425.90476190476,623.009523809524"
+      },
+      {
+        "id": "87b8ba9d-5830-44f1-b185-ed03fddc6e31",
+        "position": "1425,640.7"
+      },
+      {
+        "id": "b088c571-d868-4c94-9ab0-aae182a07245",
+        "position": "1612.5,640.7"
+      },
+      {
+        "id": "61e27a59-e39a-49fd-959d-b06b57446977",
+        "position": "1787.5,640.7"
+      },
+      {
+        "id": "cac56281-f983-4cec-a1d6-39fb4d35da29",
+        "position": "2000,640.7"
+      },
+      {
+        "id": "5f89b68e-4005-4736-b989-d42b8fb01579",
+        "position": "2000,778.2"
+      },
+      {
+        "id": "0c2e3ca1-cd49-4072-b770-f4815726318c",
+        "position": "2225,640.7"
+      },
+      {
+        "id": "7efb1c3a-17da-4a30-965c-8d70599b35bd",
+        "position": "2438.65476190476,657.609523809524"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "34bc7415-be30-4e0d-b193-92f78e304805",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 193.0,
+        "height": 93.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3840,2578.2",
+    "gridPadding": "0,3.20000000000005"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}

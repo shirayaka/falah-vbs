@@ -1,0 +1,206 @@
+{
+  "name": "mount & listen",
+  "id": "d9adfcfd-a57b-4bcc-ac0d-d9217e5bfa2c",
+  "type": "supervisedParallel",
+  "subtrees": [
+    {
+      "name": "mount",
+      "id": "d26b9e8d-5f04-4b99-9679-c3a98f1f2f6a",
+      "type": "sequence",
+      "subtrees": [
+        {
+          "name": "MSG: NewOrder to soldiers",
+          "id": "feb91a90-5791-410f-b0ea-eee45a56b078",
+          "type": "scriptAction",
+          "script": [
+            "loc.childElementsInPositions = InternalTable()",
+            "local listOfSoldiers = orbat.GetChildElements()",
+            "local pointman = sensor.Value(arg.orderData.sensors.Pointman)",
+            "",
+            "-- later will be replaced roles/capabilites tags mapping, now using simple hardcoded and limited roles setup",
+            "local rolesMap = {",
+            "    [\"vehicleDriver\"] = VehicleRole.Driver,",
+            "    [\"vehicleGunner\"] = VehicleRole.Gunner,",
+            "    [\"vehicleCommander\"] = VehicleRole.Commander,",
+            "    ",
+            "    -- old orbats support, to be removed",
+            "    [\"Vehicle_Crew_Driver\"] = VehicleRole.Driver,",
+            "    [\"Vehicle_Crew_Gunner\"] = VehicleRole.Gunner,",
+            "    [\"Vehicle_Crew_Commander\"] = VehicleRole.Commander,",
+            "}",
+            "",
+            "for i=1, #listOfSoldiers do",
+            "    message.SendOrder(",
+            "        listOfSoldiers[i], -- receiver",
+            "        arg.orderData.childElementBtset, -- btset",
+            "        \"mount\", -- behaviorName",
+            "        { -- behaviorParameters",
+            "            -- mandatory",
+            "            vehicle = bb.orbat.equipment[1].reference,",
+            "            vehicleRole = rolesMap[bb.orbat.children[i].role] or VehicleRole.Cargo,",
+            "        },",
+            "        arg.orderData -- copy of current level orderData",
+            "        -- presetName (optional)",
+            "        -- overrides",
+            "    )",
+            "",
+            "    loc.childElementsInPositions[listOfSoldiers[i]] = false",
+            "end"
+          ]
+        },
+        {
+          "name": "childElementsInPositions",
+          "id": "c879f2d4-773c-4418-aca1-89f73e8cce34",
+          "type": "waitUntil",
+          "condition": [
+            "local inPositionCounter = 0",
+            "local childElementsCounter = 0",
+            "",
+            "for childElement, inPosition in pairs(loc.childElementsInPositions) do",
+            "    if (childElement:Valid() and childElement:IsAlive()) then",
+            "        if (inPosition) then",
+            "            inPositionCounter = inPositionCounter + 1",
+            "        end",
+            "        childElementsCounter = childElementsCounter + 1",
+            "    end",
+            "end",
+            "",
+            "return inPositionCounter == childElementsCounter"
+          ]
+        },
+        {
+          "name": "MSG: OrderCompleted",
+          "id": "16e1fdc8-73d3-4997-ac3d-32a6aa7e420e",
+          "type": "scriptAction",
+          "script": [
+            "local receivers = message.MakeListOfReceivers(arg.orderData)",
+            "",
+            "message.ReportOrderCompleted(receivers, arg.orderData)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OrderCompleted",
+      "id": "d2a76f88-0d32-493e-9268-9cd71777b9e3",
+      "type": "messageHandler",
+      "handler": [
+        "loc.childElementsInPositions[msg.sender] = message.ValidateOrderCompleted(",
+        "    msg, -- full message table",
+        "    \"mount\" -- behaviorName used in MSG sender script action",
+        ")"
+      ],
+      "subject": "OrderCompleted"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "d9adfcfd-a57b-4bcc-ac0d-d9217e5bfa2c",
+        "position": "1846,420.75"
+      },
+      {
+        "id": "5c85d957-d0d3-4cb3-9eea-81ff86262c45",
+        "position": "2028,615.25"
+      },
+      {
+        "id": "bbc64293-4e64-4940-93f0-94fdf36fff79",
+        "position": "1578,615.25"
+      },
+      {
+        "id": "cc77f383-2d6a-414a-9f86-aa5932d5d9a7",
+        "position": "1812.5,217"
+      },
+      {
+        "id": "3b1c5061-89ac-419e-abdd-ea635c1f5c0d",
+        "position": "1812.5,304.5"
+      },
+      {
+        "id": "d26b9e8d-5f04-4b99-9679-c3a98f1f2f6a",
+        "position": "1850,529.5"
+      },
+      {
+        "id": "feb91a90-5791-410f-b0ea-eee45a56b078",
+        "position": "1590.5,652.75"
+      },
+      {
+        "id": "c879f2d4-773c-4418-aca1-89f73e8cce34",
+        "position": "1825,654.5"
+      },
+      {
+        "id": "16e1fdc8-73d3-4997-ac3d-32a6aa7e420e",
+        "position": "2040.5,652.75"
+      },
+      {
+        "id": "d2a76f88-0d32-493e-9268-9cd71777b9e3",
+        "position": "2062.5,529.5"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "5c85d957-d0d3-4cb3-9eea-81ff86262c45",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 199.0,
+        "height": 102.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "bbc64293-4e64-4940-93f0-94fdf36fff79",
+        "type": "comment",
+        "header": "",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 223.0,
+        "height": 98.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "cc77f383-2d6a-414a-9f86-aa5932d5d9a7",
+        "type": "comment",
+        "header": "Pointman exists",
+        "body": "Behavior assumes Pointman sensor returns valid value.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FFC4AA00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FFFFD700",
+        "boxForeground": "#FF000000",
+        "width": 201.0,
+        "height": 74.0
+      },
+      {
+        "id": "3b1c5061-89ac-419e-abdd-ea635c1f5c0d",
+        "type": "comment",
+        "header": "Reports success",
+        "body": "Behavior is expected to autonomously reports its success to unit requested by order.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF658720",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF9ACD32",
+        "boxForeground": "#FF000000",
+        "width": 201.0,
+        "height": 87.0
+      }
+    ],
+    "canvasSize": "3840,2642",
+    "gridPadding": "0,4.5"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "childElementsInPositions": "return nil"
+  }
+}

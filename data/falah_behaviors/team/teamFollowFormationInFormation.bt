@@ -1,0 +1,130 @@
+{
+  "name": "teamFFinF",
+  "id": "133fd466-dc6b-4be2-b97a-fdc4d2d16d59",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "teamFormation",
+      "id": "b1b2a0c3-f9f0-41ba-ae6a-85665f3a13c9",
+      "type": "setFormation",
+      "formation": [
+        "return arg.orderData.formationName"
+      ]
+    },
+    {
+      "name": "MSG: orders to soldiers",
+      "id": "f21e300a-ec51-4706-aaf8-0fafae26f53c",
+      "type": "scriptAction",
+      "script": [
+        "local listOfChildElements = orbat.GetChildElements()",
+        "local pointman = sensor.Evaluate(arg.orderData.sensors.Pointman)",
+        "",
+        "local newOrder = team.Reorder(listOfChildElements, pointman)",
+        "",
+        "message.SendOrder(",
+        "    pointman, -- receiver",
+        "    arg.orderData.childElementBtset, -- btset",
+        "    \"follow\", -- behaviorName",
+        "    { -- behaviorParameters",
+        "        -- mandatory",
+        "        -- optional",
+        "    },",
+        "    arg.orderData -- copy of current level orderData",
+        "    -- presetName (optional)",
+        "    -- overrides",
+        ")",
+        "",
+        "for i=1, #listOfChildElements do",
+        "    local childElement = listOfChildElements[i]",
+        "    if childElement ~= pointman then",
+        "        message.SendOrder(",
+        "            childElement, -- receiver",
+        "            arg.orderData.childElementBtset, -- btset",
+        "            \"follow\", -- behaviorName",
+        "            { -- behaviorParameters",
+        "                -- mandatory",
+        "                -- optional",
+        "            },",
+        "            arg.orderData -- copy of current level orderData",
+        "            -- presetName (optional)",
+        "            -- overrides",
+        "        )",
+        "    end",
+        "end",
+        "",
+        "-- pointman should be followed by others",
+        "sensor.SetLastValue(arg.orderData.sensors.ElementToFollow, pointman)"
+      ]
+    },
+    {
+      "name": "Follow Formation",
+      "id": "b7937071-047a-4428-a8fc-cabb28a5d84d",
+      "type": "followFormation"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "133fd466-dc6b-4be2-b97a-fdc4d2d16d59",
+        "position": "1712.5,379"
+      },
+      {
+        "id": "86d5dc5f-06b3-467a-9950-27ecdfc798f6",
+        "position": "1687.5,466.5"
+      },
+      {
+        "id": "65419997-0bbf-455a-a906-e6d3e306cde8",
+        "position": "1675,291.5"
+      },
+      {
+        "id": "b1b2a0c3-f9f0-41ba-ae6a-85665f3a13c9",
+        "position": "1500,504"
+      },
+      {
+        "id": "f21e300a-ec51-4706-aaf8-0fafae26f53c",
+        "position": "1700,504"
+      },
+      {
+        "id": "b7937071-047a-4428-a8fc-cabb28a5d84d",
+        "position": "1943,510.25"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "86d5dc5f-06b3-467a-9950-27ecdfc798f6",
+        "type": "comment",
+        "header": "",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 198.0,
+        "height": 103.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "65419997-0bbf-455a-a906-e6d3e306cde8",
+        "type": "comment",
+        "header": "Never succeed",
+        "body": "Behavior is expected to run forever",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF808080",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FFD3D3D3",
+        "boxForeground": "#FF000000",
+        "width": 200.0
+      }
+    ],
+    "canvasSize": "3840,2579",
+    "gridPadding": "0,4"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}

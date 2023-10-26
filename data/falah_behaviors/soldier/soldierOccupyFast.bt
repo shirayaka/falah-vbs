@@ -1,0 +1,52 @@
+{
+  "name": "move and observe",
+  "id": "90c35406-3241-4a85-9769-788e7271ef87",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "Reaction behavior OR move",
+      "id": "97e77396-e3f8-4c4a-bbf5-cd00059dd910",
+      "type": "scriptedReference",
+      "target": "return bb.orders.reactionPassive",
+      "arguments": {
+        "orderData": "return arg.orderData",
+        "defaultBehaviorPath": "return bb.orders.moveFast"
+      }
+    },
+    {
+      "name": "Observe",
+      "id": "79109453-2aa7-465a-8193-2b8b355763ff",
+      "type": "scriptedReference",
+      "target": "return bb.orders.observe",
+      "arguments": {
+        "orderData": "return arg.orderData"
+      }
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "90c35406-3241-4a85-9769-788e7271ef87",
+        "position": "1872.25,194.75"
+      },
+      {
+        "id": "97e77396-e3f8-4c4a-bbf5-cd00059dd910",
+        "position": "1722.25,307.25"
+      },
+      {
+        "id": "79109453-2aa7-465a-8193-2b8b355763ff",
+        "position": "2009.75,307.25"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,2400"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}

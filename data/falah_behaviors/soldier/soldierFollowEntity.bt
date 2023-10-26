@@ -1,0 +1,544 @@
+{
+  "name": "init & follow",
+  "id": "9894adcc-dce6-4125-b055-1142ab743295",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "elementToFollow => entityToFollow",
+      "id": "36444888-9698-4cfe-b74a-f5db631b2213",
+      "type": "scriptAction",
+      "script": [
+        "local elementToFollow = arg.orderData.elementToFollow",
+        "",
+        "if elementToFollow.GetEntities ~= nil then -- we know you are team",
+        "    local childCount = elementToFollow:GetChildGroupCount()",
+        "    if childCount > 0 then",
+        "        local lastChildGroup = elementToFollow:GetChildGroup(childCount-1)",
+        "        local childCountLevel2 = lastChildGroup:GetChildGroupCount()",
+        "        if childCountLevel2 > 0 then",
+        "            local lastChildLevel2 = lastChild:GetChildGroup(childCountLevel2-1)",
+        "            local childCountLevel3 = lastChildLevel2:GetChildGroupCount()",
+        "            if childCountLevel3 > 0 then",
+        "                bb.identity = \"company\"",
+        "            else",
+        "                local lastSquad = elementToFollow:GetChildGroup(childCountLevel3 - 1)",
+        "                local fireteamCount = lastSquad:GetChildGroupCount(lastSquad)",
+        "                local lastChildGroup = fireteamCount:GetChildGroup(fireteamCount - 1)",
+        "                local entityCount = lastChildGroup:GetEntityCount()",
+        "                loc.entityToFollow = elementToFollow:GetEntity(entityCount - 1)",
+        "            end",
+        "        else",
+        "            local entityCount = lastChildGroup:GetEntityCount()",
+        "            loc.entityToFollow = lastChildGroup:GetEntity(entityCount - 1)",
+        "        end",
+        "    else",
+        "        local entityCount = elementToFollow:GetEntityCount()",
+        "        loc.entityToFollow = elementToFollow:GetEntity(entityCount - 1)",
+        "        --DebugLog(tostring(arg.orderData.elementToFollow))",
+        "        --DebugLog(tostring(loc.entityToFollow))",
+        "    end",
+        "else",
+        "    loc.entityToFollow = elementToFollow",
+        "end",
+        "--DebugLog(tostring(arg.orderData.elementToFollow))",
+        "--DebugLog(tostring(loc.entityToFollow))"
+      ]
+    },
+    {
+      "name": "set followDistance",
+      "id": "9a605d31-76b5-4e72-868f-98d5889600f4",
+      "type": "scriptAction",
+      "script": [
+        "loc.followDistance = 1  -- default",
+        "local followDistance = arg.orderData.followDistance",
+        "local parentOrderData = arg.orderData.parentOrderData",
+        "",
+        "if followDistance ~= nil then",
+        "    loc.followDistance = followDistance",
+        "elseif (parentOrderData ~= nil) then",
+        "    if (parentOrderData.spacing) then",
+        "        loc.followDistance = parentOrderData.spacing",
+        "    end",
+        "end"
+      ]
+    },
+    {
+      "name": "follow and check",
+      "id": "b14a11d7-ac8e-42b5-878c-18267250ad8a",
+      "type": "supervisedParallel",
+      "subtrees": [
+        {
+          "name": "follow or idle",
+          "id": "07bd896a-2b97-467d-9eed-89062eabc163",
+          "type": "selector",
+          "subtrees": [
+            {
+              "name": "follow sequence",
+              "id": "d07254cd-62b6-4876-902f-6ef9ea91dbf2",
+              "type": "sequence",
+              "subtrees": [
+                {
+                  "name": "(re)set heading",
+                  "id": "dec224ee-c77d-40b1-bd89-b60b33738074",
+                  "type": "scriptAction",
+                  "script": [
+                    "local heading = arg.orderData.heading",
+                    "",
+                    "if heading ~= nil then",
+                    "    self:ReqHeadingRelToMove(heading)",
+                    "end",
+                    "",
+                    "self:ReqHeadingRelToMove(0)"
+                  ]
+                },
+                {
+                  "name": "(re)set stance",
+                  "id": "82638386-83e4-40b1-897f-3cff29f2973b",
+                  "type": "setStance",
+                  "stance": [
+                    "local stance = arg.orderData.stance",
+                    "",
+                    "if stance ~= nil then",
+                    "    return stance",
+                    "end",
+                    "",
+                    "return Stance.Standing"
+                  ]
+                },
+                {
+                  "name": "entityToFollow",
+                  "id": "5ce8b935-c78d-4407-97e9-41206285f897",
+                  "type": "selector",
+                  "subtrees": [
+                    {
+                      "name": "move & debugging",
+                      "id": "3f5009ab-b5ae-4415-bc96-488c27497e22",
+                      "type": "supervisedParallel",
+                      "subtrees": [
+                        {
+                          "name": "pick proper move once",
+                          "id": "0a433e2a-fdfb-41f6-a560-fec0d7029250",
+                          "type": "selector",
+                          "subtrees": [
+                            {
+                              "name": "FE",
+                              "id": "cee7c077-2bd3-4654-b4e5-0004b1490879",
+                              "type": "followEntity",
+                              "decorators": [
+                                {
+                                  "id": "12ffab5d-7a5d-4dd9-8657-511a898919aa",
+                                  "type": "scriptCondition",
+                                  "name": "movementRestrictions",
+                                  "script": [
+                                    "return arg.orderData.movementRestrictions ~= nil"
+                                  ]
+                                },
+                                {
+                                  "id": "15366777-78ff-4466-bf1f-71b97321a3b7",
+                                  "type": "scriptCondition",
+                                  "name": "boundaries",
+                                  "script": [
+                                    "return arg.orderData.boundaries ~= nil"
+                                  ]
+                                }
+                              ],
+                              "entity": [
+                                "return loc.entityToFollow"
+                              ],
+                              "distance": [
+                                "return loc.followDistance"
+                              ],
+                              "restrictions": [
+                                "return arg.orderData.movementRestrictions"
+                              ],
+                              "boundaries": [
+                                "return Polygon(arg.orderData.boundaries)"
+                              ]
+                            },
+                            {
+                              "name": "FE",
+                              "id": "1032980b-f482-4737-a00a-77dc5c89def7",
+                              "type": "followEntity",
+                              "decorators": [
+                                {
+                                  "id": "840ebc19-9ec6-4a7e-a846-888bc9a52ce7",
+                                  "type": "scriptCondition",
+                                  "name": "movementRestrictions",
+                                  "script": [
+                                    "return arg.orderData.movementRestrictions ~= nil"
+                                  ]
+                                }
+                              ],
+                              "entity": [
+                                "return loc.entityToFollow"
+                              ],
+                              "distance": [
+                                "return loc.followDistance"
+                              ],
+                              "restrictions": [
+                                "return arg.orderData.movementRestrictions"
+                              ]
+                            },
+                            {
+                              "name": "FE",
+                              "id": "4477fbea-7c89-4c6d-a064-a477c24f4de8",
+                              "type": "followEntity",
+                              "decorators": [
+                                {
+                                  "id": "9412bd4a-aa8e-4211-ad32-8025bf91a80c",
+                                  "type": "scriptCondition",
+                                  "name": "boundaries",
+                                  "script": [
+                                    "return arg.orderData.boundaries ~= nil"
+                                  ]
+                                }
+                              ],
+                              "entity": [
+                                "return loc.entityToFollow"
+                              ],
+                              "distance": [
+                                "return loc.followDistance"
+                              ],
+                              "boundaries": [
+                                "return Polygon(arg.orderData.boundaries)"
+                              ]
+                            },
+                            {
+                              "name": "FE",
+                              "id": "542c16da-f729-42d6-b76d-69730d1a4d49",
+                              "type": "followEntity",
+                              "entity": [
+                                "return loc.entityToFollow"
+                              ],
+                              "distance": [
+                                "return loc.followDistance"
+                              ]
+                            }
+                          ],
+                          "active": false
+                        },
+                        {
+                          "name": "DEBUG: entityToFollow",
+                          "id": "261ede79-916a-48b3-a8c0-d8fba4ee4b74",
+                          "type": "scriptAction",
+                          "script": [
+                            "if (arg.orderData.debugEnabled) then",
+                            "    if loc.entityToFollow:Valid() then",
+                            "        DebugLine(self:GetPosition() + Vec3(0,0,1.8), (loc.entityToFollow):GetPosition(), 0, 0, 1)",
+                            "    end",
+                            "end"
+                          ]
+                        },
+                        {
+                          "name": "PLACEHOLDER: Update speed",
+                          "id": "4cb0766d-b1e1-4039-9484-915dc72370c1",
+                          "type": "success"
+                        }
+                      ],
+                      "decorators": [
+                        {
+                          "id": "5b7c3d48-84cf-4273-8b47-3378a1bd7f23",
+                          "type": "scriptCondition",
+                          "name": "entityToFollow valid?",
+                          "script": [
+                            "return orbat.IsAliveAndValid(loc.entityToFollow) and loc.entityToFollow.GetChildGroupCount == nil -- not group"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "get new entityToFollow",
+                      "id": "9be79c4a-401f-4663-9227-d6d8fe315e07",
+                      "type": "sequence",
+                      "subtrees": [
+                        {
+                          "name": "EntityToFollow (explict)",
+                          "id": "a761ba61-eae4-47cc-985f-c85e48c12384",
+                          "type": "scriptAction",
+                          "script": [
+                            "local entityToFollow = arg.orderData.entityToFollow",
+                            "local isValid = orbat.IsAliveAndValid(entityToFollow)",
+                            "",
+                            "-- 1) try explicit defintion",
+                            "if isValid then",
+                            "    loc.entityToFollow = entityToFollow",
+                            "    return true",
+                            "end"
+                          ]
+                        },
+                        {
+                          "name": "0.1s to check validity",
+                          "id": "b0297a32-a443-4036-9a0c-b5afd4198263",
+                          "type": "wait",
+                          "time": [
+                            "return 0.1"
+                          ]
+                        },
+                        {
+                          "name": "3s",
+                          "id": "8cc0702f-8a73-4b65-a7d0-2fcd98b7a434",
+                          "type": "wait",
+                          "time": [
+                            "return 3"
+                          ]
+                        }
+                      ],
+                      "decorators": [
+                        {
+                          "id": "c092e2b7-9ff7-464d-bd9c-40dc25e17197",
+                          "type": "loopForever",
+                          "name": "forever"
+                        }
+                      ]
+                    }
+                  ],
+                  "active": true
+                }
+              ],
+              "decorators": [
+                {
+                  "id": "b7ec11a5-40f3-47b7-a893-36316718fdf5",
+                  "type": "scriptCondition",
+                  "name": "not crouchWhileNotMoving",
+                  "script": [
+                    "return not loc.crouchWhileNotMoving"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Idle",
+              "id": "ca603f69-6170-4a92-9905-ab11c668e623",
+              "type": "scriptedReference",
+              "target": "return bb.orders.idle",
+              "arguments": {
+                "orderData": "return arg.orderData"
+              }
+            }
+          ],
+          "active": true
+        },
+        {
+          "name": "if not moving, crouch",
+          "id": "49df6373-5e00-4ecd-b3f9-26c3d9d659c8",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "3s",
+              "id": "fdfee33d-b6cd-4f19-959e-f0cf50d9bb21",
+              "type": "wait",
+              "time": [
+                "return 3"
+              ]
+            },
+            {
+              "name": "check lastPosition",
+              "id": "0fc4f79f-80a8-4f56-9df5-646a8b097d43",
+              "type": "scriptAction",
+              "script": [
+                "if orbat.IsAliveAndValid(loc.entityToFollow) then -- not group",
+                "    local newPosition = loc.entityToFollow:GetPosition()",
+                "    if loc.lastPosition == nil then ",
+                "        loc.lastPosition = newPosition",
+                "    elseif (loc.lastPosition:Distance(newPosition) < 1 and ",
+                "        self:GetPosition():Distance(loc.entityToFollow:GetPosition()) < loc.followDistance + 5) ",
+                "    then",
+                "        loc.crouchWhileNotMoving = true",
+                "    else",
+                "        loc.crouchWhileNotMoving = false",
+                "    end",
+                "    loc.lastPosition = newPosition",
+                "else",
+                "    loc.crouchWhileNotMoving = false",
+                "end"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "Wait Forever",
+      "id": "7d4c71a1-8c5a-4a4e-bc2d-0e88e5a900c9",
+      "type": "waitForever",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "7d4c71a1-8c5a-4a4e-bc2d-0e88e5a900c9",
+            "position": "3275,1271.85396825396"
+          }
+        ],
+        "editorObjects": []
+      }
+    },
+    {
+      "name": "PLACEHOLDER: Set speed",
+      "id": "233a639e-e7db-4828-8458-cf867f880da6",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "233a639e-e7db-4828-8458-cf867f880da6",
+            "position": "737.5,984.353968253968"
+          }
+        ],
+        "editorObjects": []
+      }
+    },
+    {
+      "name": "PLACEHOLDER: Set custom flags",
+      "id": "37e426e1-a20c-48f5-9087-0b21d287b639",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "37e426e1-a20c-48f5-9087-0b21d287b639",
+            "position": "1327,981.520634920635"
+          }
+        ],
+        "editorObjects": []
+      }
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "9894adcc-dce6-4125-b055-1142ab743295",
+        "position": "1700,296.853968253968"
+      },
+      {
+        "id": "abe4d592-0e3d-4e50-9e0a-e279eac5d019",
+        "position": "3268,1206.85396825397"
+      },
+      {
+        "id": "36444888-9698-4cfe-b74a-f5db631b2213",
+        "position": "1200,409.353968253968"
+      },
+      {
+        "id": "9a605d31-76b5-4e72-868f-98d5889600f4",
+        "position": "1500,409.353968253969"
+      },
+      {
+        "id": "b14a11d7-ac8e-42b5-878c-18267250ad8a",
+        "position": "1700,409.353968253969"
+      },
+      {
+        "id": "07bd896a-2b97-467d-9eed-89062eabc163",
+        "position": "1700,596.853968253969"
+      },
+      {
+        "id": "d07254cd-62b6-4876-902f-6ef9ea91dbf2",
+        "position": "1675,771.853968253969"
+      },
+      {
+        "id": "dec224ee-c77d-40b1-bd89-b60b33738074",
+        "position": "962.5,984.353968253968"
+      },
+      {
+        "id": "82638386-83e4-40b1-897f-3cff29f2973b",
+        "position": "1137.5,984.353968253968"
+      },
+      {
+        "id": "5ce8b935-c78d-4407-97e9-41206285f897",
+        "position": "1700,996.853968253969"
+      },
+      {
+        "id": "3f5009ab-b5ae-4415-bc96-488c27497e22",
+        "position": "1700,1159.35396825397"
+      },
+      {
+        "id": "0a433e2a-fdfb-41f6-a560-fec0d7029250",
+        "position": "1687.5,1471.85396825396"
+      },
+      {
+        "id": "cee7c077-2bd3-4654-b4e5-0004b1490879",
+        "position": "1362.5,1609.35396825396"
+      },
+      {
+        "id": "1032980b-f482-4737-a00a-77dc5c89def7",
+        "position": "1587.5,1609.35396825396"
+      },
+      {
+        "id": "4477fbea-7c89-4c6d-a064-a477c24f4de8",
+        "position": "1800,1609.35396825396"
+      },
+      {
+        "id": "542c16da-f729-42d6-b76d-69730d1a4d49",
+        "position": "2000,1609.35396825396"
+      },
+      {
+        "id": "261ede79-916a-48b3-a8c0-d8fba4ee4b74",
+        "position": "1887.5,1471.85396825396"
+      },
+      {
+        "id": "4cb0766d-b1e1-4039-9484-915dc72370c1",
+        "position": "2100,1459.35396825397"
+      },
+      {
+        "id": "9be79c4a-401f-4663-9227-d6d8fe315e07",
+        "position": "2875,1109.35396825397"
+      },
+      {
+        "id": "a761ba61-eae4-47cc-985f-c85e48c12384",
+        "position": "2525,1271.85396825396"
+      },
+      {
+        "id": "b0297a32-a443-4036-9a0c-b5afd4198263",
+        "position": "2712.5,1271.85396825396"
+      },
+      {
+        "id": "8cc0702f-8a73-4b65-a7d0-2fcd98b7a434",
+        "position": "3100,1271.85396825396"
+      },
+      {
+        "id": "ca603f69-6170-4a92-9905-ab11c668e623",
+        "position": "1937.5,771.853968253968"
+      },
+      {
+        "id": "49df6373-5e00-4ecd-b3f9-26c3d9d659c8",
+        "position": "2012.5,496.853968253969"
+      },
+      {
+        "id": "fdfee33d-b6cd-4f19-959e-f0cf50d9bb21",
+        "position": "1912.5,596.853968253969"
+      },
+      {
+        "id": "0fc4f79f-80a8-4f56-9df5-646a8b097d43",
+        "position": "2075,596.853968253969"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "abe4d592-0e3d-4e50-9e0a-e279eac5d019",
+        "type": "comment",
+        "header": "Repeat seemed not needed yet.",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 161.0,
+        "height": 130.0,
+        "headerBackground": "#FF00FF00",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FF90EE90",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "4695.6,3246.85396825396",
+    "gridPadding": "0,9.35396825396832"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "followDistance": "return nil",
+    "entityToFollow": "return nil",
+    "suborderData": "return nil",
+    "lastPosition": "return nil",
+    "crouchWhileNotMoving": "return false"
+  }
+}

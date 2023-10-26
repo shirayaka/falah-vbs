@@ -1,0 +1,63 @@
+{
+  "name": "Safe or Fast",
+  "id": "1dec0b1e-64b7-4a94-aba9-526badfb4b8e",
+  "type": "selector",
+  "subtrees": [
+    {
+      "name": "Occupy Safe",
+      "id": "8c9ac473-53dc-4599-b742-1639dd217adb",
+      "type": "scriptedReference",
+      "decorators": [
+        {
+          "id": "b5553bc6-5625-43b3-bb16-291f6fbb5144",
+          "type": "scriptCondition",
+          "name": "TBD",
+          "script": [
+            "return false"
+          ]
+        }
+      ],
+      "target": "return bb.orders.occupySafe",
+      "arguments": {
+        "orderData": "return arg.orderData"
+      }
+    },
+    {
+      "name": "Occupy Fast",
+      "id": "20813243-d5f3-4d42-809e-b5869757e539",
+      "type": "scriptedReference",
+      "target": "return bb.orders.occupyFast",
+      "arguments": {
+        "orderData": "return arg.orderData"
+      }
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "1dec0b1e-64b7-4a94-aba9-526badfb4b8e",
+        "position": "1856.5,193"
+      },
+      {
+        "id": "8c9ac473-53dc-4599-b742-1639dd217adb",
+        "position": "1762.5,320.5"
+      },
+      {
+        "id": "20813243-d5f3-4d42-809e-b5869757e539",
+        "position": "1987.5,320.5"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,2408",
+    "gridPadding": "0,8"
+  },
+  "active": true,
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}

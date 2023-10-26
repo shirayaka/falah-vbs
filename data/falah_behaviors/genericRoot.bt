@@ -1,0 +1,468 @@
+{
+  "name": "init and run",
+  "id": "36c3e5dc-1ddb-4811-aa53-6bcbb0e38c38",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "calculate identity",
+      "id": "560359ac-c199-4c4e-a1e2-d2bd991fec90",
+      "type": "scriptAction",
+      "script": [
+        "if self.GetEntities ~= nil then -- we know you are team",
+        "    local childCount = self:GetChildGroupCount()",
+        "    if childCount > 0 then",
+        "        local firstChild = self:GetChildGroup(0)",
+        "        childCount = firstChild:GetChildGroupCount()",
+        "        if childCount > 0 then",
+        "            local firstChildOfChild = firstChild:GetChildGroup(0)",
+        "            childCount = firstChildOfChild:GetChildGroupCount()",
+        "            if childCount > 0 then",
+        "                bb.identity = \"company\"",
+        "            else",
+        "                bb.identity = \"platoon\"",
+        "            end",
+        "        else",
+        "            bb.identity = \"squad\"",
+        "        end",
+        "    else",
+        "        bb.identity = \"team\"",
+        "    end",
+        "else",
+        "    bb.identity = \"soldier\"",
+        "end"
+      ]
+    },
+    {
+      "name": "rules defaults",
+      "id": "0a348f95-9553-4e01-9031-7ddefc0594ae",
+      "type": "scriptAction",
+      "script": [
+        "bb.rules = {",
+        "    roe = \"FireWhenSeeEnemy\",",
+        "    reactionDistanceTrigger = 100,",
+        "    reactionDistancePursue = 150,",
+        "}"
+      ]
+    },
+    {
+      "name": "orderSets",
+      "id": "79f05ca0-ad55-4b1d-86f0-ef064dcc0873",
+      "type": "scriptAction",
+      "script": [
+        "bb.orderSets = {",
+        "    soldier = { -- = equivalent to identity",
+        "        -- When adding new order, follow next pattern",
+        "        -- [\"orderName\"] = {\"btsetName\", \"treeName\"}",
+        "",
+        "        -- HIGH LEVEL NOORDER/IDLE",
+        "        [\"noOrder\"] = {\"generic_behaviors_public\", \"soldierObserve\"}, ",
+        "",
+        "        -- HIGH LEVEL AUTONOMOUS",
+        "        [\"follow\"] = {\"generic_behaviors_public\", \"soldierFollow\"}, -- INPUTS: entity",
+        "        [\"observe\"] = {\"generic_behaviors_public\", \"soldierObserve\"},",
+        "        [\"occupy\"] = {\"generic_behaviors_public\", \"soldierOccupy\"}, -- INPUTS: position",
+        "        [\"occupyFast\"] = {\"generic_behaviors_public\", \"soldierOccupyFast\"}, -- INPUTS: position",
+        "        [\"occupySafe\"] = {\"generic_behaviors_public\", \"soldierOccupySafe\"}, -- INPUTS: position",
+        "        [\"destroy\"] = {\"generic_behaviors_public\", \"soldierDestroy\"},  -- INPUTS: target",
+        "",
+        "        -- REACTION LEVEL",
+        "        [\"reaction\"] = {\"generic_behaviors_public\", \"soldierReaction\"}, -- INPUTS: target, boundaries",
+        "        [\"reactionPassive\"] = {\"generic_behaviors_public\", \"soldierReactionPassive\"}, -- INPUTS: target, boundaries",
+        "                ",
+        "        -- LOW LEVEL (without reaction)",
+        "        [\"dismount\"] = {\"generic_behaviors_public\", \"soldierDismount\"},",
+        "        [\"fight\"] = {\"generic_behaviors_public\", \"soldierFight\"},",
+        "        [\"fire\"] = {\"generic_behaviors_public\", \"soldierFireAtWill\"}, ",
+        "        [\"followEntity\"] = {\"generic_behaviors_public\", \"soldierFollowEntity\"}, -- INPUTS: entity",
+        "        [\"followFormation\"] = {\"generic_behaviors_public\", \"soldierFollowFormation\"},        ",
+        "        [\"idle\"] = {\"generic_behaviors_public\", \"soldierIdle\"},",
+        "        [\"move\"] = {\"generic_behaviors_public\", \"soldierMove\"}, -- INPUTS: position",
+        "        [\"moveCarefully\"] = {\"generic_behaviors_public\", \"soldierMoveCarefully\"}, -- INPUTS: position",
+        "        [\"moveFast\"] = {\"generic_behaviors_public\", \"soldierMoveFast\"}, -- INPUTS: position",
+        "        [\"moveUnderFire\"] = {\"generic_behaviors_public\", \"soldierUnderFire\"}, -- INPUTS: position",
+        "        [\"mount\"] = {\"generic_behaviors_public\", \"soldierMount\"}, -- INPUTS: crewPos/vehicle/vehicleRole",
+        "",
+        "        -- TRAINING ONES",
+        "        [\"standaloneMove\"] = {\"generic_behaviors_public\", \"soldierStandaloneMove\"}, -- INPUTS: position",
+        "    },",
+        "    team = {",
+        "        -- HIGH LEVEL NOORDER/IDLE",
+        "        [\"noOrder\"] = {\"generic_behaviors_public\", \"teamObserve\"},",
+        "        ",
+        "        -- HIGH LEVEL AUTONOMOUS",
+        "        [\"observe\"] = {\"generic_behaviors_public\", \"teamObserve\"},",
+        "        [\"occupy\"] = {\"generic_behaviors_public\", \"teamMoveInColumn\"}, -- INPUTS: position",
+        "",
+        "        -- REACTION LEVEL",
+        "        -- [\"reaction\"] = {\"generic_behaviors_public\", \"teamGenericReaction\"}, -- INPUTS: target, boundaries",
+        "        ",
+        "        -- LOW LEVEL (without reaction)",
+        "        [\"follow\"] = {\"generic_behaviors_public\", \"teamFollowEntityInColumn\"}, -- INPUTS: entity        ",
+        "        [\"move\"] = {\"generic_behaviors_public\", \"teamMoveInColumn\"}, -- INPUTS: position    ",
+        "    },",
+        "    squad = {",
+        "        -- HIGH LEVEL NOORDER/IDLE",
+        "        [\"noOrder\"] = {\"generic_behaviors_public\", \"squadObserve\"},",
+        "",
+        "        -- HIGH LEVEL AUTONOMOUS",
+        "        [\"observe\"] = {\"generic_behaviors_public\", \"squadObserve\"},",
+        "        [\"occupy\"] = {\"generic_behaviors_public\", \"squadMoveInColumn\"}, -- INPUTS: position",
+        "",
+        "        -- REACTION LEVEL",
+        "",
+        "        -- LOW LEVEL (without reaction)",
+        "        [\"move\"] = {\"generic_behaviors_public\", \"squadMoveInColumn\"}, -- INPUTS: position",
+        "        [\"follow\"] = {\"generic_behaviors_public\", \"squadFollowInColumn\"}, -- INPUTS: position",
+        "    },",
+        "    platoon = {",
+        "        -- HIGH LEVEL NOORDER/IDLE",
+        "        [\"noOrder\"] = {\"generic_behaviors_public\", \"platoonObserve\"},",
+        "",
+        "        -- HIGH LEVEL AUTONOMOUS",
+        "        [\"observe\"] = {\"generic_behaviors_public\", \"platoonObserve\"},",
+        "        [\"occupy\"] = {\"generic_behaviors_public\", \"platoonMoveInColumn\"}, -- INPUTS: position",
+        "",
+        "        -- REACTION LEVEL",
+        "        ",
+        "        -- LOW LEVEL (without reaction)",
+        "        [\"move\"] = {\"generic_behaviors_public\", \"platoonMoveInColumn\"}, -- INPUTS: position",
+        "        [\"follow\"] = {\"generic_behaviors_public\", \"platoonFollowInColumn\"}, -- INPUTS: position ",
+        "    },",
+        "    company = {",
+        "        -- HIGH LEVEL NOORDER/IDLE",
+        "        [\"noOrder\"] = {\"generic_behaviors_public\", \"companyObserve\"},",
+        "",
+        "        -- HIGH LEVEL AUTONOMOUS",
+        "        [\"observe\"] = {\"generic_behaviors_public\", \"companyObserve\"},",
+        "        -- [\"occupy\"] = {\"generic_behaviors_public\", \"companyMoveInColumn\"}, -- INPUTS: position",
+        "",
+        "        -- REACTION LEVEL",
+        "        ",
+        "        -- LOW LEVEL (without reaction)",
+        "        --[\"move\"] = {\"generic_behaviors_public\", \"companyMoveInColumn\"}, -- INPUTS: position ",
+        "    },",
+        "}",
+        "",
+        "bb.orders = bb.orderSets[bb.identity]"
+      ]
+    },
+    {
+      "name": "genericRoot",
+      "id": "9afa1a28-460e-4ba9-972b-740754a2f035",
+      "type": "supervisedParallel",
+      "subtrees": [
+        {
+          "name": "Wait Forever",
+          "id": "c6378205-e6c0-44b3-a23a-9a03babb7bc1",
+          "type": "waitForever"
+        },
+        {
+          "name": "NewOrder",
+          "id": "2574d24f-a996-4545-940c-54f9548845a4",
+          "type": "messageHandler",
+          "handler": [
+            "loc.newOrderData = msg.value",
+            "loc.resetOnNewOrder = true",
+            "",
+            "-- DebugLog(msg.value.orderName)"
+          ],
+          "subject": "NewOrder"
+        },
+        {
+          "name": "NewRule",
+          "id": "e5bb4211-bd9f-4a12-a131-984df0a064a1",
+          "type": "messageHandler",
+          "handler": [
+            "local msgValue = msg.value",
+            "",
+            "local ruleName = msgValue.ruleName",
+            "local ruleValue = msgValue.ruleValue",
+            "",
+            "DebugLog(self .. \" - NEW RULE received: [\" .. ruleName .. \"] = \" .. ruleValue)",
+            "",
+            "if",
+            "    ruleName ~= nil and",
+            "    ruleValue ~= nil",
+            "then",
+            "    bb.rules[ruleName] = ruleValue",
+            "end"
+          ],
+          "subject": "NewRule"
+        },
+        {
+          "name": "NewOrderSet",
+          "id": "d42ff92d-779a-4b56-9847-84df9ba8cd7f",
+          "type": "messageHandler",
+          "handler": [
+            "local msgValue = msg.value",
+            "",
+            "local orderSetKey = msgValue.orderSetKey",
+            "local orderSetValue = msgValue.orderSetValue",
+            "",
+            "DebugLog(self .. \" - NEW ORDERS MAPPING received: [\" .. orderSetKey .. \"]\")",
+            "",
+            "if",
+            "    orderSetKey ~= nil and",
+            "    orderSetValue ~= nil",
+            "then",
+            "    bb.orderSets[orderSetKey] = {}",
+            "    if ",
+            "        msgValue.inheritFrom ~= nil and",
+            "        bb.orderSets[msgValue.inheritFrom] ~= nil",
+            "    then",
+            "        local inheritSet = bb.orderSets[msgValue.inheritFrom]",
+            "        for k,v in pairs(inheritSet) do",
+            "            bb.orderSets[orderSetKey][k] = v",
+            "        end  ",
+            "    end",
+            "    for k,v in pairs(orderSetValue) do",
+            "        bb.orderSets[orderSetKey][k] = v",
+            "    end    ",
+            "end",
+            "",
+            "if bb.identity == orderSetKey then",
+            "    bb.orders = bb.orderSets[orderSetKey]",
+            "end"
+          ],
+          "subject": "NewOrderSet"
+        },
+        {
+          "name": "NewIdentity",
+          "id": "1531c5c6-97ff-4066-afae-f479e9c10746",
+          "type": "messageHandler",
+          "handler": [
+            "local msgValue = msg.value",
+            "",
+            "if ",
+            "    msgValue.identity ~= nil and",
+            "    bb.orderSets[bb.identity] ~= nil",
+            "then",
+            "    bb.identity = msgValue.identity",
+            "    DebugLog(self .. \" - NEW IDENTITY set: [\" .. bb.identity .. \"]\")",
+            "    bb.orders = bb.orderSets[bb.identity] ",
+            "else",
+            "    DebugLog(self .. \" - NEW IDENTITY was not set: [\" .. bb.identity .. \"] set is missing in bb.orderSets\")",
+            "end"
+          ],
+          "subject": "NewIdentity"
+        },
+        {
+          "name": "reset or order",
+          "id": "486e08d2-8c27-4f05-95cd-77ad59cb1c41",
+          "type": "selector",
+          "subtrees": [
+            {
+              "name": "Reset done",
+              "id": "0ba89266-d257-446a-9bbc-9c0ae4f2d295",
+              "type": "wait",
+              "decorators": [
+                {
+                  "id": "8c9c3d5d-bc2a-4164-86f2-3090ff81a5af",
+                  "type": "valueComparison",
+                  "name": "resetOnNewOrder?",
+                  "operator": "equal",
+                  "lhs": {
+                    "type": "local",
+                    "key": "resetOnNewOrder"
+                  },
+                  "rhs": {
+                    "type": "boolean",
+                    "value": true
+                  }
+                }
+              ],
+              "time": [
+                "loc.resetOnNewOrder = false",
+                "return 1"
+              ]
+            },
+            {
+              "name": "\"order branch\"",
+              "id": "3df5902e-267d-444f-bcdd-a8d265c160d4",
+              "type": "sequence",
+              "subtrees": [
+                {
+                  "name": "pick order",
+                  "id": "3dc20cce-706f-429b-aa2e-d562f8799426",
+                  "type": "selector",
+                  "subtrees": [
+                    {
+                      "name": "Wait Forever",
+                      "id": "0ae0f5d6-43c3-4f38-b540-5490764707e5",
+                      "type": "waitForever",
+                      "decorators": [
+                        {
+                          "id": "17d8acbb-ee22-4f99-9150-bd5a2089cc11",
+                          "type": "scriptCondition",
+                          "name": "no newOrderData",
+                          "script": [
+                            "return loc.newOrderData == nil"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Selected behavior",
+                      "id": "89309ddd-9238-4e6c-94ca-afbc0c4630b9",
+                      "type": "scriptedReference",
+                      "target": "return bb.orders[loc.newOrderData.orderName]",
+                      "arguments": {
+                        "orderData": "return loc.newOrderData"
+                      }
+                    }
+                  ],
+                  "active": true
+                },
+                {
+                  "name": "Generic observe (all levels)",
+                  "id": "67b451e2-9747-4e88-8c15-fc4a20364801",
+                  "type": "scriptedReference",
+                  "target": "return bb.orders.observe",
+                  "arguments": {
+                    "orderData": "return {}"
+                  }
+                },
+                {
+                  "name": "Wait Forever",
+                  "id": "6c3460d3-837a-40f0-b7b9-bf13af7d0360",
+                  "type": "waitForever"
+                }
+              ]
+            },
+            {
+              "name": "Fail fallback",
+              "id": "38f063bb-e748-4cd5-a113-4750a2215c25",
+              "type": "waitForever"
+            }
+          ],
+          "active": true
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "36c3e5dc-1ddb-4811-aa53-6bcbb0e38c38",
+        "position": "2075,342.5"
+      },
+      {
+        "id": "daa574b2-6709-4a1e-96ad-8464aa834209",
+        "position": "1787.5,667.5"
+      },
+      {
+        "id": "2193dc6b-d31d-4884-ab8a-0d6c2c9651ad",
+        "position": "2312.5,617.5"
+      },
+      {
+        "id": "560359ac-c199-4c4e-a1e2-d2bd991fec90",
+        "position": "1525,405",
+        "height": 50.0
+      },
+      {
+        "id": "0a348f95-9553-4e01-9031-7ddefc0594ae",
+        "position": "1700,405",
+        "height": 50.0
+      },
+      {
+        "id": "79f05ca0-ad55-4b1d-86f0-ef064dcc0873",
+        "position": "1875,405"
+      },
+      {
+        "id": "9afa1a28-460e-4ba9-972b-740754a2f035",
+        "position": "2075,467.5"
+      },
+      {
+        "id": "c6378205-e6c0-44b3-a23a-9a03babb7bc1",
+        "position": "1187.5,542.5"
+      },
+      {
+        "id": "2574d24f-a996-4545-940c-54f9548845a4",
+        "position": "1375,542.5"
+      },
+      {
+        "id": "e5bb4211-bd9f-4a12-a131-984df0a064a1",
+        "position": "1537.5,542.5"
+      },
+      {
+        "id": "d42ff92d-779a-4b56-9847-84df9ba8cd7f",
+        "position": "1700,542.5"
+      },
+      {
+        "id": "1531c5c6-97ff-4066-afae-f479e9c10746",
+        "position": "1862.5,542.5"
+      },
+      {
+        "id": "486e08d2-8c27-4f05-95cd-77ad59cb1c41",
+        "position": "2075,592.5"
+      },
+      {
+        "id": "0ba89266-d257-446a-9bbc-9c0ae4f2d295",
+        "position": "1825,742.5"
+      },
+      {
+        "id": "3df5902e-267d-444f-bcdd-a8d265c160d4",
+        "position": "2075,705"
+      },
+      {
+        "id": "3dc20cce-706f-429b-aa2e-d562f8799426",
+        "position": "2075,855"
+      },
+      {
+        "id": "0ae0f5d6-43c3-4f38-b540-5490764707e5",
+        "position": "1862.5,992.5"
+      },
+      {
+        "id": "89309ddd-9238-4e6c-94ca-afbc0c4630b9",
+        "position": "2075,992.5"
+      },
+      {
+        "id": "67b451e2-9747-4e88-8c15-fc4a20364801",
+        "position": "2275,867.5"
+      },
+      {
+        "id": "6c3460d3-837a-40f0-b7b9-bf13af7d0360",
+        "position": "2512.5,867.5"
+      },
+      {
+        "id": "38f063bb-e748-4cd5-a113-4750a2215c25",
+        "position": "2337.5,742.5"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "daa574b2-6709-4a1e-96ad-8464aa834209",
+        "type": "comment",
+        "header": "Active 1 frame to reset subtree",
+        "body": "Put breakpoint on Wait to handle new order received (loc.orderData).\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nDue nature of selector it is enough that \"order branch\" is not running at least 1 one frame => all context (local variables, passed values) is cleaned up.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FFFFD700",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FFC0C0C0",
+        "boxForeground": "#FF000000",
+        "width": 223.0,
+        "height": 252.0
+      },
+      {
+        "id": "2193dc6b-d31d-4884-ab8a-0d6c2c9651ad",
+        "type": "comment",
+        "header": "Prevents whole tree fails",
+        "body": "For debugging and also for the context pruposes this safety node prevents fail of whole \"order branch\" of the tree. Potential unwanted failes are catched here.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF808080",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FFFFFFFF",
+        "boxForeground": "#FF000000",
+        "width": 191.0,
+        "height": 190.0
+      }
+    ],
+    "canvasSize": "3840,2730",
+    "gridPadding": "0,5"
+  },
+  "parameters": [],
+  "locals": {
+    "newOrderData": "return nil",
+    "resetOnNewOrder": "return false"
+  }
+}

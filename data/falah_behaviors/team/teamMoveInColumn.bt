@@ -1,0 +1,307 @@
+{
+  "name": "pre-condtion",
+  "id": "44bda15d-2cde-41c7-aaf3-41479b15f342",
+  "type": "selector",
+  "subtrees": [
+    {
+      "name": "Wait Forever",
+      "id": "4ff17da2-7c9d-40b1-8319-d7c575ccade7",
+      "type": "waitForever",
+      "decorators": [
+        {
+          "id": "dee40caa-f8a1-43ed-9bf1-e51c5b8a5f88",
+          "type": "scriptCondition",
+          "name": "0 units",
+          "script": [
+            "local listOfChildElements = orbat.GetChildElements()",
+            "return #listOfChildElements == 0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "move & listen",
+      "id": "a87ab2be-1a7c-476f-ab03-b93dab0b3d00",
+      "type": "supervisedParallel",
+      "subtrees": [
+        {
+          "name": "reset or order",
+          "id": "af46f604-e78f-42cc-b20d-d4b832c45576",
+          "type": "selector",
+          "subtrees": [
+            {
+              "name": "Reset done",
+              "id": "becf294d-1282-4803-8397-e25ceb06ce7c",
+              "type": "wait",
+              "decorators": [
+                {
+                  "id": "97113b73-d8f3-4ccc-9e7f-58ddce01bedb",
+                  "type": "valueComparison",
+                  "name": "restart?",
+                  "operator": "equal",
+                  "lhs": {
+                    "type": "local",
+                    "key": "restart"
+                  },
+                  "rhs": {
+                    "type": "boolean",
+                    "value": true
+                  }
+                }
+              ],
+              "time": [
+                "loc.restart = false",
+                "return 20"
+              ]
+            },
+            {
+              "name": "move to position in column",
+              "id": "542e3adc-ef03-430c-8d23-f3a41615d03d",
+              "type": "sequence",
+              "subtrees": [
+                {
+                  "name": "MSG: NewOrder to soldiers",
+                  "id": "f10e0f9a-800d-4e92-81c9-f0194579fc06",
+                  "type": "scriptAction",
+                  "script": [
+                    "loc.childElementsInPositions = InternalTable()",
+                    "local listOfChildElements = orbat.GetChildElements()",
+                    "local pointman = listOfChildElements[1]",
+                    "",
+                    "-- local newOrder = team.Reorder(listOfChildElements, pointman)",
+                    "",
+                    "message.SendOrder(",
+                    "    pointman, -- receiver",
+                    "    arg.orderData.childElementBtset, -- btset",
+                    "    \"occupy\", -- behaviorName",
+                    "    { -- behaviorParameters",
+                    "        -- mandatory",
+                    "        position = arg.orderData.position,",
+                    "        -- optional",
+                    "        reportCompletedToParent = true,",
+                    "    },",
+                    "    arg.orderData -- copy of current level orderData",
+                    "    -- presetName (optional)",
+                    "    -- overrides",
+                    ")",
+                    "",
+                    "loc.childElementsInPositions[pointman] = false",
+                    "",
+                    "local previousSoldier = pointman",
+                    "for i=1, #listOfChildElements do",
+                    "    local soldier = listOfChildElements[i]",
+                    "    if soldier ~= pointman then",
+                    "        message.SendOrder(",
+                    "            soldier, -- receiver",
+                    "            arg.orderData.childElementBtset, -- btset",
+                    "            \"follow\", -- behaviorName",
+                    "            { -- behaviorParameters",
+                    "                -- mandatory",
+                    "                elementToFollow = listOfChildElements[i-1],",
+                    "                followDistance = arg.orderData.columnSpacing,",
+                    "                -- optional",
+                    "            },",
+                    "            arg.orderData -- copy of current level orderData",
+                    "            -- presetName (optional)",
+                    "            -- overrides",
+                    "        )",
+                    "        previousSoldier = soldier",
+                    "    end",
+                    "end",
+                    "",
+                    "loc.childElementsCount = #listOfChildElements",
+                    "",
+                    "-- last guy in column should be followed by others",
+                    "-- sensor.SetLastValue(arg.orderData.sensors.ElementToFollow, listOfChildElements[#listOfChildElements])"
+                  ]
+                },
+                {
+                  "name": "childElementsInPositions",
+                  "id": "80092e53-dcd6-4357-8860-b91d4d0b9c50",
+                  "type": "waitUntil",
+                  "condition": [
+                    "return loc.done"
+                  ]
+                },
+                {
+                  "name": "MSG: OrderCompleted",
+                  "id": "1803dac2-f614-4b47-8d5f-296f4b3ec4c3",
+                  "type": "scriptAction",
+                  "script": [
+                    "local receivers = message.MakeListOfReceivers(arg.orderData)",
+                    "",
+                    "message.ReportOrderCompleted(receivers, arg.orderData)"
+                  ]
+                }
+              ]
+            }
+          ],
+          "active": true
+        },
+        {
+          "name": "OrderCompleted",
+          "id": "9f242520-b69b-4fde-a183-e5c9fd1784c4",
+          "type": "messageHandler",
+          "handler": [
+            "--[[",
+            "loc.childElementsInPositions[msg.sender] = message.ValidateOrderCompleted(",
+            "    msg, -- full message table",
+            "    \"occupy\" -- behaviorName used in MSG sender script action",
+            ")",
+            "DebugLog(msg.sender .. \" \" .. msg.value.originalOrderData.orderName)",
+            "]]--",
+            "loc.childElementsInPositions[msg.sender] = true"
+          ],
+          "subject": "OrderCompleted"
+        },
+        {
+          "name": "check for completed",
+          "id": "f0f7314e-b027-437a-9323-867df143a15f",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "1s",
+              "id": "1528a5fa-90ec-42c2-b86e-b9c1106750f4",
+              "type": "wait",
+              "time": [
+                "return 1"
+              ]
+            },
+            {
+              "name": "Check order completed",
+              "id": "257c912e-cef3-4da0-8591-13c17604be3b",
+              "type": "scriptAction",
+              "script": [
+                "local inPositionCounter = 0",
+                "local childElementsCounter = 0",
+                "",
+                "for childElement, inPosition in pairs(loc.childElementsInPositions) do",
+                "    if (childElement:Valid() and childElement:IsAlive()) then",
+                "        if (inPosition) then",
+                "            inPositionCounter = inPositionCounter + 1",
+                "        end",
+                "        childElementsCounter = childElementsCounter + 1",
+                "    end",
+                "end",
+                "",
+                "-- check if done",
+                "loc.done = inPositionCounter == childElementsCounter"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Check deaths",
+          "id": "8f606be3-11e5-45dc-8749-67850f1a7464",
+          "type": "scriptAction",
+          "script": [
+            "local listOfChildElements = orbat.GetChildElements()",
+            "",
+            "if loc.childElementsCount == #listOfChildElements then",
+            "    return true",
+            "else",
+            "    loc.restart = true",
+            "    loc.childElementsCount = #listOfChildElements",
+            "    return true",
+            "end"
+          ]
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "44bda15d-2cde-41c7-aaf3-41479b15f342",
+        "position": "1510.25,372.5"
+      },
+      {
+        "id": "02c43832-0392-4cfb-beea-0ac79bebd402",
+        "position": "1487.5,252.25"
+      },
+      {
+        "id": "4ff17da2-7c9d-40b1-8319-d7c575ccade7",
+        "position": "1287.5,464.75"
+      },
+      {
+        "id": "a87ab2be-1a7c-476f-ab03-b93dab0b3d00",
+        "position": "1512.5,502.25"
+      },
+      {
+        "id": "af46f604-e78f-42cc-b20d-d4b832c45576",
+        "position": "1512.5,652.25"
+      },
+      {
+        "id": "becf294d-1282-4803-8397-e25ceb06ce7c",
+        "position": "1287.5,714.75"
+      },
+      {
+        "id": "542e3adc-ef03-430c-8d23-f3a41615d03d",
+        "position": "1487.5,764.75"
+      },
+      {
+        "id": "f10e0f9a-800d-4e92-81c9-f0194579fc06",
+        "position": "1262.5,889.75"
+      },
+      {
+        "id": "80092e53-dcd6-4357-8860-b91d4d0b9c50",
+        "position": "1487.5,889.75"
+      },
+      {
+        "id": "1803dac2-f614-4b47-8d5f-296f4b3ec4c3",
+        "position": "1712.5,889.75"
+      },
+      {
+        "id": "9f242520-b69b-4fde-a183-e5c9fd1784c4",
+        "position": "1712.5,652.25"
+      },
+      {
+        "id": "f0f7314e-b027-437a-9323-867df143a15f",
+        "position": "1912.5,652.25"
+      },
+      {
+        "id": "1528a5fa-90ec-42c2-b86e-b9c1106750f4",
+        "position": "1862.5,727.25"
+      },
+      {
+        "id": "257c912e-cef3-4da0-8591-13c17604be3b",
+        "position": "2025,727.25"
+      },
+      {
+        "id": "8f606be3-11e5-45dc-8749-67850f1a7464",
+        "position": "2112.5,652.25"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "02c43832-0392-4cfb-beea-0ac79bebd402",
+        "type": "comment",
+        "header": "Reports success",
+        "body": "Behavior is expected to autonomously reports its success to unit requested by order.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF658720",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF9ACD32",
+        "boxForeground": "#FF000000",
+        "width": 201.0,
+        "height": 87.0
+      }
+    ],
+    "canvasSize": "3840,2914.75",
+    "gridPadding": "0,2.25"
+  },
+  "active": true,
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "childElementsInPositions": "return nil",
+    "childElementsCount": "return nil",
+    "done": "return false",
+    "restart": "return false"
+  }
+}

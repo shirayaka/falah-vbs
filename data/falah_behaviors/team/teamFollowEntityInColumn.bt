@@ -1,0 +1,144 @@
+{
+  "name": "teamFEinC",
+  "id": "2baca59c-2379-4beb-97e9-ba897b819685",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "MSG: orders to soldiers",
+      "id": "bcaf609c-2ad6-4cb5-9448-975a7ed8df90",
+      "type": "scriptAction",
+      "script": [
+        "local listOfChildElements = orbat.GetChildElements()",
+        "local pointman = listOfChildElements[1]",
+        "",
+        "-- local newOrder = team.Reorder(listOfChildElements, pointman)",
+        "",
+        "message.SendOrder(",
+        "    pointman, -- receiver",
+        "    arg.orderData.childElementBtset, -- btset",
+        "    \"follow\", -- behaviorName",
+        "    { -- behaviorParameters",
+        "        -- mandatory",
+        "        elementToFollow = arg.orderData.elementToFollow,",
+        "        followDistance = arg.orderData.followDistance,",
+        "        -- optional",
+        "    },",
+        "    arg.orderData -- copy of current level orderData",
+        "    -- presetName (optional)",
+        "    -- overrides",
+        ")",
+        "",
+        "local previousSoldier = pointman",
+        "for i=1, #listOfChildElements do",
+        "    local soldier = listOfChildElements[i]",
+        "    if soldier ~= pointman then",
+        "        message.SendOrder(",
+        "            soldier, -- receiver",
+        "            arg.orderData.childElementBtset, -- btset",
+        "            \"follow\", -- behaviorName",
+        "            { -- behaviorParameters",
+        "                -- mandatory",
+        "                elementToFollow = previousSoldier,",
+        "                followDistance = arg.orderData.columnSpacing,",
+        "                -- optional",
+        "            },",
+        "            arg.orderData -- copy of current level orderData",
+        "            -- presetName (optional)",
+        "            -- overrides",
+        "        )",
+        "        previousSoldier = soldier        ",
+        "    end",
+        "end",
+        "",
+        "-- last guy in column should be followed by others",
+        "-- sensor.SetLastValue(arg.orderData.sensors.ElementToFollow, listOfChildElements[#listOfChildElements])"
+      ]
+    },
+    {
+      "name": "Wait Forever",
+      "id": "9a7ca5b8-7ae1-465d-8868-69f9928c8a13",
+      "type": "waitForever"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "2baca59c-2379-4beb-97e9-ba897b819685",
+        "position": "1737.5,1677"
+      },
+      {
+        "id": "44b2d6e5-8a20-4eff-9369-f75e5538bfde",
+        "position": "1712.5,1589.5"
+      },
+      {
+        "id": "13f1f596-e912-4d27-bdc3-689d681a70bb",
+        "position": "1712.5,1489.5"
+      },
+      {
+        "id": "75d5d415-913b-4039-a34a-770daccfe0d7",
+        "position": "1600,1752"
+      },
+      {
+        "id": "bcaf609c-2ad6-4cb5-9448-975a7ed8df90",
+        "position": "1612.5,1789.5"
+      },
+      {
+        "id": "9a7ca5b8-7ae1-465d-8868-69f9928c8a13",
+        "position": "1850,1789.5"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "44b2d6e5-8a20-4eff-9369-f75e5538bfde",
+        "type": "comment",
+        "header": "Never succeed",
+        "body": "Behavior is expected to run forever",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF808080",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FFD3D3D3",
+        "boxForeground": "#FF000000",
+        "width": 200.0
+      },
+      {
+        "id": "13f1f596-e912-4d27-bdc3-689d681a70bb",
+        "type": "comment",
+        "header": "Reports success",
+        "body": "Behavior is expected to autonomously reports its success to unit which requested order.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF658720",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF9ACD32",
+        "boxForeground": "#FF000000",
+        "width": 201.0,
+        "height": 87.0
+      },
+      {
+        "id": "75d5d415-913b-4039-a34a-770daccfe0d7",
+        "type": "comment",
+        "header": "",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 198.0,
+        "height": 103.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3840,3902",
+    "gridPadding": "0,2"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "elementToFollow": "return nil",
+    "elementToFollowValid": "return nil"
+  }
+}

@@ -1,0 +1,207 @@
+{
+  "name": "move sequence",
+  "id": "fa1e150f-6005-45c2-8e9c-2a482a2d5543",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "Set speed",
+      "id": "3eb93a2b-071f-4332-a9c6-52f16bf12357",
+      "type": "setEntitySpeedLimits",
+      "movementSpeed": [
+        "return 4"
+      ]
+    },
+    {
+      "name": "Reset heading",
+      "id": "de9f5ba7-fbf3-4387-ab9a-9a06f7975d6a",
+      "type": "scriptAction",
+      "script": [
+        "self:ReqHeadingFormationIfStationary()"
+      ]
+    },
+    {
+      "name": "(re)set stance",
+      "id": "42c3d7a5-f646-4256-8306-f47ef4541a82",
+      "type": "setStance",
+      "stance": [
+        "return Stance.Crouched"
+      ]
+    },
+    {
+      "name": "(re)set threats",
+      "id": "8891aac2-1ce2-4fc5-83d2-d6ab5ee3c95c",
+      "type": "scriptAction",
+      "script": [
+        "loc.threats = arg.orderData.threats",
+        "",
+        "if (loc.threats == nil and arg.orderData.sqfThreats ~= nil) then",
+        "    loc.threats = process.SQFThreats(arg.orderData.sqfThreats)",
+        "end",
+        "",
+        "if (loc.threats ~= nil) then",
+        "    self:SetThreats(loc.threats)",
+        "    return true",
+        "end",
+        "",
+        "self:ResetThreats()",
+        "return true"
+      ]
+    },
+    {
+      "name": "move & debug",
+      "id": "30c7bbc8-0e0b-47cd-a311-a8a869b3a001",
+      "type": "supervisedParallel",
+      "subtrees": [
+        {
+          "name": "Move",
+          "id": "68a3d082-f2dd-4ba7-941d-5d1ad8ce2f5e",
+          "type": "scriptedReference",
+          "target": "return bb.orders.move",
+          "arguments": {
+            "orderData": "return arg.orderData"
+          }
+        },
+        {
+          "name": "DEBUG: threats",
+          "id": "9e088ef3-1d1d-4db6-bb83-5e6ca2fd2492",
+          "type": "scriptAction",
+          "script": [
+            "if (arg.orderData.debugEnabled) then",
+            "",
+            "    local offset = Vec3(0,0,5)",
+            "",
+            "    if loc.threats ~= nil then",
+            "        for i=1, #loc.threats do",
+            "            if loc.threats[i].area ~= nil then",
+            "                draw.Circle(",
+            "                    loc.threats[i].area:Center() + offset, -- position",
+            "                    loc.threats[i].area:Radius(), -- radius",
+            "                    1, 0, 0, 1 -- RGBA",
+            "                )",
+            "            end",
+            "        end",
+            "    end",
+            "end"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "set ReqHeadingAbs",
+      "id": "f5e05bd2-e5aa-4165-801e-40e2dc812833",
+      "type": "scriptAction",
+      "script": [
+        "local heading = arg.orderData.heading",
+        "local parentOrderData = arg.orderData.parentOrderData",
+        "",
+        "if (heading ~= nil) then",
+        "    self:ReqHeadingAbs(heading)",
+        "elseif (parentOrderData ~= nil) then",
+        "    if (parentOrderData.heading ~= nil) then",
+        "        self:ReqHeadingAbs(parentOrderData.heading)",
+        "    end",
+        "end"
+      ]
+    },
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "865216ea-3023-49f5-a9ca-42a4f9249643",
+      "type": "scriptAction",
+      "script": [
+        "local receivers = message.MakeListOfReceivers(arg.orderData)",
+        "message.ReportOrderCompleted(receivers, arg.orderData)"
+      ]
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "PLACEHOLDER: Set visibility",
+      "id": "a32265ae-c070-494f-ab1e-640c7e5d168a",
+      "type": "success",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "a32265ae-c070-494f-ab1e-640c7e5d168a",
+            "position": "512.499999999995,518.833333333333"
+          }
+        ],
+        "editorObjects": []
+      }
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "fa1e150f-6005-45c2-8e9c-2a482a2d5543",
+        "position": "1837.5,368.833333333333"
+      },
+      {
+        "id": "2b3f0e8f-cfdc-46de-84dd-604e1f1fa333",
+        "position": "2212.25,484.233333333333"
+      },
+      {
+        "id": "3eb93a2b-071f-4332-a9c6-52f16bf12357",
+        "position": "1133.64285714285,522.531746031746"
+      },
+      {
+        "id": "de9f5ba7-fbf3-4387-ab9a-9a06f7975d6a",
+        "position": "1312.5,518.833333333333"
+      },
+      {
+        "id": "42c3d7a5-f646-4256-8306-f47ef4541a82",
+        "position": "1487.5,518.833333333333"
+      },
+      {
+        "id": "8891aac2-1ce2-4fc5-83d2-d6ab5ee3c95c",
+        "position": "1662.5,518.833333333333"
+      },
+      {
+        "id": "30c7bbc8-0e0b-47cd-a311-a8a869b3a001",
+        "position": "1837.5,618.833333333333"
+      },
+      {
+        "id": "68a3d082-f2dd-4ba7-941d-5d1ad8ce2f5e",
+        "position": "1837.5,756.333333333333"
+      },
+      {
+        "id": "9e088ef3-1d1d-4db6-bb83-5e6ca2fd2492",
+        "position": "2104.13492063492,801.333333333333"
+      },
+      {
+        "id": "f5e05bd2-e5aa-4165-801e-40e2dc812833",
+        "position": "2000,518.833333333333"
+      },
+      {
+        "id": "865216ea-3023-49f5-a9ca-42a4f9249643",
+        "position": "2225,518.833333333333"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "2b3f0e8f-cfdc-46de-84dd-604e1f1fa333",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 193.0,
+        "height": 93.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3840,2581.33333333333",
+    "gridPadding": "0,6.33333333333323"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "threats": "return nil"
+  }
+}

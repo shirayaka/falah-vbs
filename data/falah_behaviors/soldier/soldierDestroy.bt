@@ -1,0 +1,537 @@
+{
+  "name": "soldierDestroy",
+  "id": "ca7a483e-6c50-40b4-9dfc-427edd8ff784",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "InputOverride",
+      "id": "07e91427-afbc-42aa-9a76-f4f5440fe4fa",
+      "type": "scriptAction",
+      "script": [
+        "local targetPosition = arg.orderData.target",
+        "local minDistance = math.huge",
+        "local selectedEntity",
+        "",
+        "for i, entity in ipairs( GetEntitiesInArea( Circle(targetPosition, 100) , { enemyOf = self }) ) do",
+        "    local thisDistance = entity:GetPosition():Distance(targetPosition)    ",
+        "    if thisDistance < minDistance then",
+        "        selectedEntity = entity",
+        "        minDistance = thisDistance",
+        "    end",
+        "end",
+        "",
+        "arg.orderData.target = selectedEntity"
+      ]
+    },
+    {
+      "name": "valid target",
+      "id": "5444d216-067e-431d-84af-9e7b13856b94",
+      "type": "waitUntil",
+      "condition": [
+        "return arg.orderData.target ~= nil"
+      ]
+    },
+    {
+      "name": "destroy+debug",
+      "id": "81cfdd91-deff-4f27-a37f-e9af38615159",
+      "type": "supervisedParallel",
+      "subtrees": [
+        {
+          "name": "shoot or move closer",
+          "id": "192bd749-7a7d-4b8f-bbfc-4d36241047d0",
+          "type": "selector",
+          "subtrees": [
+            {
+              "name": "Succeed",
+              "id": "2594fb2c-8fa9-44e8-89f4-2b90eb04ab4d",
+              "type": "success",
+              "decorators": [
+                {
+                  "id": "d4e8739d-c6c2-4a14-b717-965359379de5",
+                  "type": "scriptCondition",
+                  "name": "target not valid",
+                  "script": [
+                    "local target = arg.orderData.target",
+                    "",
+                    "return target == nil or",
+                    "       target:Valid() == false or",
+                    "       target:IsAlive() == false"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Fire",
+              "id": "349f7b88-9b08-4453-a555-fef2df5ba6d6",
+              "type": "scriptedReference",
+              "decorators": [
+                {
+                  "id": "8e136d1f-1bbb-4b67-be99-81fd2cd3459b",
+                  "type": "valueComparison",
+                  "name": "seeTarget",
+                  "operator": "equal",
+                  "lhs": {
+                    "type": "local",
+                    "key": "seeTarget"
+                  },
+                  "rhs": {
+                    "type": "boolean",
+                    "value": true
+                  }
+                }
+              ],
+              "target": "return bb.orders.fire",
+              "arguments": {
+                "orderData": "return arg.orderData"
+              }
+            },
+            {
+              "name": "long or short moves",
+              "id": "6227b44d-ce56-4c52-84e0-dfece017373f",
+              "type": "selector",
+              "subtrees": [
+                {
+                  "name": "try get closer +20m",
+                  "id": "6d846dc8-bed5-45cd-9d74-a0107633c2e4",
+                  "type": "sequence",
+                  "subtrees": [
+                    {
+                      "name": "suborderData",
+                      "id": "0881b719-bdbb-4ac6-8566-ddf2e6c9015d",
+                      "type": "scriptAction",
+                      "script": [
+                        "loc.suborderData = tableExt.Extend(",
+                        "    {},",
+                        "    arg.orderData,",
+                        "    {",
+                        "        position = loc.path:PositionAlongPath(20)",
+                        "    }",
+                        ")",
+                        "    "
+                      ]
+                    },
+                    {
+                      "name": "Reaction behavior OR move",
+                      "id": "4ce00472-f3d8-4d44-a09a-dfd7de2b683e",
+                      "type": "scriptedReference",
+                      "target": "return bb.orders.reaction",
+                      "arguments": {
+                        "orderData": "return loc.suborderData",
+                        "defaultBehaviorPath": "return bb.orders.moveCarefully"
+                      }
+                    },
+                    {
+                      "name": "set end stance",
+                      "id": "26fe1abf-0676-46bd-8442-cea1ff77abfa",
+                      "type": "setStance",
+                      "stance": [
+                        "local stances = {",
+                        "    Stance.Prone,",
+                        "    Stance.Crouched",
+                        "}",
+                        "",
+                        "return Stance.Crouched"
+                      ]
+                    },
+                    {
+                      "name": "observe for a while",
+                      "id": "3298884a-53be-465d-b47e-de792d16b23c",
+                      "type": "wait",
+                      "time": [
+                        "return math.random(5)"
+                      ]
+                    }
+                  ],
+                  "decorators": [
+                    {
+                      "id": "148ad0e5-5bdc-4be2-9992-4dca3e4d0fde",
+                      "type": "valueComparison",
+                      "name": "seenAlready",
+                      "operator": "equal",
+                      "lhs": {
+                        "type": "local",
+                        "key": "seenAlready"
+                      },
+                      "rhs": {
+                        "type": "boolean",
+                        "value": true
+                      }
+                    },
+                    {
+                      "id": "c44554ff-f96f-40e8-9642-5b6559fa1caa",
+                      "type": "scriptCondition",
+                      "name": "distance < 70m",
+                      "script": [
+                        "return loc.path:Length() < 70"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "try get closer fast",
+                  "id": "4a25c801-5234-4717-a79b-ae6832578d74",
+                  "type": "sequence",
+                  "subtrees": [
+                    {
+                      "name": "suborderData",
+                      "id": "67027c44-0642-4c97-ac02-db71195b9225",
+                      "type": "scriptAction",
+                      "script": [
+                        "loc.suborderData = tableExt.Extend(",
+                        "    {},",
+                        "    arg.orderData,",
+                        "    {",
+                        "        position = loc.path:EndPoint()",
+                        "    }",
+                        ")",
+                        "    "
+                      ]
+                    },
+                    {
+                      "name": "Reaction behavior OR move",
+                      "id": "7ba2276a-5252-4f36-a1c9-8326c52edf6d",
+                      "type": "scriptedReference",
+                      "target": "return bb.orders.reaction",
+                      "arguments": {
+                        "orderData": "return loc.suborderData",
+                        "defaultBehaviorPath": "return bb.orders.moveFast"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "decorators": [
+                {
+                  "id": "c40c800e-7090-4a33-9f68-cd1c76d8edac",
+                  "type": "waitUntil",
+                  "name": "valid path",
+                  "condition": [
+                    "return loc.path ~= nil"
+                  ]
+                },
+                {
+                  "id": "01bb18df-4f47-470d-af9c-4302a108bb59",
+                  "type": "loopForever",
+                  "name": "repeat"
+                }
+              ],
+              "active": false
+            }
+          ],
+          "active": true
+        },
+        {
+          "name": "Target Debug",
+          "id": "5c627338-b428-4257-a44f-b72aec6cfd31",
+          "type": "scriptAction",
+          "script": [
+            "if arg.orderData.target then",
+            "    DebugLine(self:GetPosition() + Vec3(0,0,1.8), arg.orderData.target:GetPosition(), 1,0,0)",
+            "    --DebugLine(self:GetPosition() + Vec3(0,0,1.8), arg.orderData.position, 0, 0, 1)",
+            "end"
+          ]
+        },
+        {
+          "name": "Path to target Debug",
+          "id": "c60d4dab-7725-4c72-b572-993dce4b4cb6",
+          "type": "scriptAction",
+          "script": [
+            "if loc.pathDebug then",
+            "    draw.PolylineOnSurface(loc.pathDebug, 0, 1, 1, 1, Vec3(0,0,1))",
+            "end"
+          ]
+        },
+        {
+          "name": "analyze",
+          "id": "3a49599f-beae-4c45-9ffd-d48faa970cc3",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "FindPath",
+              "id": "45c3fa49-0fce-4c30-a254-40e1e700a6c7",
+              "type": "scriptAction",
+              "script": [
+                "loc.pathQuery = FindPath(self:GetPosition(), arg.orderData.target:GetPosition(),",
+                "{",
+                "    areaCosts = {",
+                "        {flags = { [ NavmeshFlag.CustomFlag1 ] = true, [ NavmeshFlag.CustomFlag2 ] = false }, cost = 4},",
+                "        {flags = { [ NavmeshFlag.CustomFlag1 ] = true, [ NavmeshFlag.Safe ] = true }, cost = 1},",
+                "        --{flags = { [ NavmeshFlag.CustomFlag2 ] = false }, cost = 2},",
+                "        {flags = { [ NavmeshFlag.Safe ] = true }, cost = 1},",
+                "        {flags = { [ NavmeshFlag.Safe ] = false }, cost = 2},",
+                "        {flags = { [ NavmeshFlag.Road ] = true }, cost = 4},",
+                "        {flags = { [ NavmeshFlag.Footpath ] = true }, cost = 4},",
+                "    }",
+                "})"
+              ]
+            },
+            {
+              "name": "path ready",
+              "id": "c61bc025-c12b-4346-98fd-30e3f53bd1bf",
+              "type": "waitUntil",
+              "condition": [
+                "return loc.pathQuery:IsReady()"
+              ]
+            },
+            {
+              "name": "convert path",
+              "id": "4774f2ed-3c2a-4365-8a6d-18229b00ac79",
+              "type": "scriptAction",
+              "script": [
+                "loc.path = loc.pathQuery:Value()",
+                "loc.pathDebug = {self:GetPosition()}",
+                "",
+                "for i=0, loc.path:GetSegmentCount()-1 do",
+                "    loc.pathDebug[#loc.pathDebug + 1] = loc.path:GetSegmentEnd(i)",
+                "end"
+              ]
+            },
+            {
+              "name": "5",
+              "id": "ff75ae17-0807-476e-936c-b0f7c7aeebc7",
+              "type": "wait",
+              "time": [
+                "return 5"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "visibility of target",
+          "id": "7a303633-50fd-4d25-97a4-473186d266a7",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "Can see?",
+              "id": "18252585-34a4-4a9c-9382-9694acd6d697",
+              "type": "scriptAction",
+              "script": [
+                "loc.seeTarget = self:IsVisible(arg.orderData.target)",
+                "",
+                "if loc.seeTarget then",
+                "    loc.seenAlready = true",
+                "end"
+              ]
+            },
+            {
+              "name": "performance wait",
+              "id": "b9536017-a074-481e-9a89-e3a9d148d79b",
+              "type": "wait",
+              "time": [
+                "return 0.5"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "38ab0f42-8380-445d-bd53-91adcdbfeb55",
+      "type": "scriptAction",
+      "script": [
+        "local receivers = message.MakeListOfReceivers(arg.orderData)",
+        "message.ReportOrderCompleted(receivers, arg.orderData)"
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "ca7a483e-6c50-40b4-9dfc-427edd8ff784",
+        "position": "1862.5,210.5"
+      },
+      {
+        "id": "1ab68401-b0a8-4e6a-ab5e-dc4ec3a49013",
+        "position": "1475,298"
+      },
+      {
+        "id": "9fb0c9f6-0066-43e3-94a1-8de4a8b64de4",
+        "position": "2087.25,288.4"
+      },
+      {
+        "id": "356f1c56-a244-47e1-ae2c-d4bcec2bf588",
+        "position": "2212.5,538"
+      },
+      {
+        "id": "f0ae3392-9a37-4610-81a5-764ad319e6a8",
+        "position": "2225,798"
+      },
+      {
+        "id": "07e91427-afbc-42aa-9a76-f4f5440fe4fa",
+        "position": "1487.5,335.5"
+      },
+      {
+        "id": "5444d216-067e-431d-84af-9e7b13856b94",
+        "position": "1675,335.5"
+      },
+      {
+        "id": "81cfdd91-deff-4f27-a37f-e9af38615159",
+        "position": "1862.5,335.5"
+      },
+      {
+        "id": "192bd749-7a7d-4b8f-bbfc-4d36241047d0",
+        "position": "1850,823"
+      },
+      {
+        "id": "2594fb2c-8fa9-44e8-89f4-2b90eb04ab4d",
+        "position": "962.5,1398"
+      },
+      {
+        "id": "349f7b88-9b08-4453-a555-fef2df5ba6d6",
+        "position": "1212.5,1398"
+      },
+      {
+        "id": "6227b44d-ce56-4c52-84e0-dfece017373f",
+        "position": "1850,1023"
+      },
+      {
+        "id": "6d846dc8-bed5-45cd-9d74-a0107633c2e4",
+        "position": "1712.5,1260.5"
+      },
+      {
+        "id": "0881b719-bdbb-4ac6-8566-ddf2e6c9015d",
+        "position": "1500,1448"
+      },
+      {
+        "id": "4ce00472-f3d8-4d44-a09a-dfd7de2b683e",
+        "position": "1675,1448"
+      },
+      {
+        "id": "26fe1abf-0676-46bd-8442-cea1ff77abfa",
+        "position": "1900,1448"
+      },
+      {
+        "id": "3298884a-53be-465d-b47e-de792d16b23c",
+        "position": "2075,1448"
+      },
+      {
+        "id": "4a25c801-5234-4717-a79b-ae6832578d74",
+        "position": "2500,1323"
+      },
+      {
+        "id": "67027c44-0642-4c97-ac02-db71195b9225",
+        "position": "2300,1435.5"
+      },
+      {
+        "id": "7ba2276a-5252-4f36-a1c9-8326c52edf6d",
+        "position": "2475,1423"
+      },
+      {
+        "id": "5c627338-b428-4257-a44f-b72aec6cfd31",
+        "position": "2212.5,460.5"
+      },
+      {
+        "id": "c60d4dab-7725-4c72-b572-993dce4b4cb6",
+        "position": "2225,723"
+      },
+      {
+        "id": "3a49599f-beae-4c45-9ffd-d48faa970cc3",
+        "position": "2225,573"
+      },
+      {
+        "id": "45c3fa49-0fce-4c30-a254-40e1e700a6c7",
+        "position": "2387.5,648"
+      },
+      {
+        "id": "c61bc025-c12b-4346-98fd-30e3f53bd1bf",
+        "position": "2550,648"
+      },
+      {
+        "id": "4774f2ed-3c2a-4365-8a6d-18229b00ac79",
+        "position": "2725,648"
+      },
+      {
+        "id": "ff75ae17-0807-476e-936c-b0f7c7aeebc7",
+        "position": "2900,648"
+      },
+      {
+        "id": "7a303633-50fd-4d25-97a4-473186d266a7",
+        "position": "2250,835.5"
+      },
+      {
+        "id": "18252585-34a4-4a9c-9382-9694acd6d697",
+        "position": "2400,910.5"
+      },
+      {
+        "id": "b9536017-a074-481e-9a89-e3a9d148d79b",
+        "position": "2575,910.5"
+      },
+      {
+        "id": "38ab0f42-8380-445d-bd53-91adcdbfeb55",
+        "position": "2100,323"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "1ab68401-b0a8-4e6a-ab5e-dc4ec3a49013",
+        "type": "comment",
+        "header": "temporary",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 360.0,
+        "height": 105.0,
+        "headerBackground": "#FFD2B48C",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FFFFEBCD",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "9fb0c9f6-0066-43e3-94a1-8de4a8b64de4",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 193.0,
+        "height": 93.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "356f1c56-a244-47e1-ae2c-d4bcec2bf588",
+        "type": "comment",
+        "header": "What is shortest path to target which was valid in last few seconds?",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 864.49999999999955,
+        "height": 174.0,
+        "headerBackground": "#FF87CEFA",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FFF0FFFF",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "f0ae3392-9a37-4610-81a5-764ad319e6a8",
+        "type": "comment",
+        "header": "Do I see the target of my tracking?",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 864.49999999999955,
+        "height": 174.0,
+        "headerBackground": "#FF87CEFA",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FFF0FFFF",
+        "boxForeground": "#FF000000"
+      }
+    ],
+    "canvasSize": "3840,2498",
+    "gridPadding": "0,10.5"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {
+    "pathDebug": "return nil",
+    "pathQuery": "return nil",
+    "path": "return nil",
+    "suborderData": "return nil",
+    "seeTarget": "return nil",
+    "seenAlready": "return false"
+  }
+}

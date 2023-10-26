@@ -1,0 +1,133 @@
+{
+  "name": "teamFEinF",
+  "id": "e31ca541-d479-452d-98ba-a4e61f722c02",
+  "type": "sequence",
+  "subtrees": [
+    {
+      "name": "teamFormation",
+      "id": "b73b47e0-bc9e-4a7f-ae71-448de7686081",
+      "type": "setFormation",
+      "formation": [
+        "return arg.orderData.formationName"
+      ]
+    },
+    {
+      "name": "MSG: NewOrder to soldiers",
+      "id": "231d2962-a088-47ed-a8d7-4e3f556a9d2e",
+      "type": "scriptAction",
+      "script": [
+        "local listOfChildElements = orbat.GetChildElements()",
+        "local pointman = sensor.Evaluate(arg.orderData.sensors.Pointman)",
+        "",
+        "local newOrder = team.Reorder(listOfChildElements, pointman)",
+        "",
+        "message.SendOrder(",
+        "    pointman, -- receiver",
+        "    arg.orderData.childElementBtset, -- btset",
+        "    \"follow\", -- behaviorName",
+        "    { -- behaviorParameters",
+        "        -- mandatory",
+        "        elementToFollow = arg.orderData.elementToFollow,",
+        "        followDistance = arg.orderData.followDistance,",
+        "        -- optional",
+        "    },",
+        "    arg.orderData -- copy of current level orderData",
+        "    -- presetName (optional)",
+        "    -- overrides",
+        ")",
+        "",
+        "for i=1, #listOfChildElements do",
+        "    local childElement = listOfChildElements[i]",
+        "    if childElement ~= pointman then",
+        "        message.SendOrder(",
+        "            childElement, -- receiver",
+        "            arg.orderData.childElementBtset, -- btset",
+        "            \"follow\", -- behaviorName",
+        "            { -- behaviorParameters",
+        "                -- mandatory",
+        "                -- optional",
+        "            },",
+        "            arg.orderData -- copy of current level orderData",
+        "            -- presetName (optional)",
+        "            -- overrides",
+        "        )",
+        "    end",
+        "end",
+        "",
+        "-- pointman should be followed by others",
+        "sensor.SetLastValue(arg.orderData.sensors.ElementToFollow, pointman)"
+      ]
+    },
+    {
+      "name": "Wait Forever",
+      "id": "681052d9-162e-46d0-b43a-272da2c3eca5",
+      "type": "waitForever"
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "e31ca541-d479-452d-98ba-a4e61f722c02",
+        "position": "1725,428.838383838388"
+      },
+      {
+        "id": "bc257a80-9d4e-43fe-a03d-45f8a0b2a682",
+        "position": "1687.5,541.338383838384"
+      },
+      {
+        "id": "2e01e579-ae07-415b-9db4-8c8debe673e2",
+        "position": "1698.5,307.338383838388"
+      },
+      {
+        "id": "b73b47e0-bc9e-4a7f-ae71-448de7686081",
+        "position": "1500,578.838383838384"
+      },
+      {
+        "id": "231d2962-a088-47ed-a8d7-4e3f556a9d2e",
+        "position": "1700,578.838383838384"
+      },
+      {
+        "id": "681052d9-162e-46d0-b43a-272da2c3eca5",
+        "position": "1937.5,578.838383838384"
+      }
+    ],
+    "editorObjects": [
+      {
+        "id": "bc257a80-9d4e-43fe-a03d-45f8a0b2a682",
+        "type": "comment",
+        "header": "",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 227.0,
+        "height": 100.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "2e01e579-ae07-415b-9db4-8c8debe673e2",
+        "type": "comment",
+        "header": "Reports success",
+        "body": "Behavior is expected to autonomously reports its success to unit requested by order.",
+        "bodyAlignment": "Left",
+        "headerBackground": "#FF658720",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF9ACD32",
+        "boxForeground": "#FF000000",
+        "width": 201.0,
+        "height": 87.0
+      }
+    ],
+    "canvasSize": "3842,3128.83838383838",
+    "gridPadding": "0,3.83838383838383"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false,
+      "defaultValue": ""
+    }
+  ],
+  "locals": {}
+}
