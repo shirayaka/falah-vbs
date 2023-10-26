@@ -27,6 +27,7 @@
     "squad\\squadMoveInColumn.bt",
     "squad\\squadObserve.bt",
     "team\\teamDefaultOccupy.bt",
+    "team\\teamDefend.bt",
     "team\\teamDismount.bt",
     "team\\teamFollowEntityInColumn.bt",
     "team\\teamFollowEntityInFormation.bt",

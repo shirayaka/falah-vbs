@@ -93,7 +93,7 @@ class CfgAvailableBehaviors
 				displayName = "orderName";
 				value = "occupy";
 				type = "string";
-			}
+			};
 			class orderParameters
 			{
 				displayName = "orderParameters";
@@ -111,6 +111,33 @@ class CfgAvailableBehaviors
 				displayName = "debugEnabled";
 				value = "false";
 				type = "boolean";
+			};
+		};
+	};
+	class falah_behaviors_defend
+	{
+		icon = "\vbs2\customer\plugins\falah_behaviors\data\falah_behaviors_defend.paa";
+		allowRotate = true;
+
+		identity = "generic_team";
+		displayname = "Falah FT Defend";
+		description = "Falah team Defend";				
+
+		newOrderSubject = "NewOrder";
+		
+		class RootBehaviors
+		{
+			group[] = {"falah_behaviors", "genericRoot"};
+			entity[] = {"falah_behaviors", "genericRoot"};
+		};
+		
+		class Parameters
+		{
+			class orderName
+			{
+				displayName = "orderName";
+				value = "defend";
+				type = "string";
 			};
 		};
 	};

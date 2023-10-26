@@ -100,7 +100,8 @@
         "        ",
         "        -- LOW LEVEL (without reaction)",
         "        [\"follow\"] = {currentBTSet, \"teamFollowEntityInColumn\"}, -- INPUTS: entity        ",
-        "        [\"move\"] = {currentBTSet, \"teamMoveInColumn\"}, -- INPUTS: position    ",
+        "        [\"move\"] = {currentBTSet, \"teamMoveInColumn\"}, -- INPUTS: position   ",
+        "        [\"defend\"] = {currentBTSet, \"teamDefend\"}, -- INPUTS: position ",
         "    },",
         "    squad = {",
         "        -- HIGH LEVEL NOORDER/IDLE",
@@ -346,89 +347,89 @@
     "nodesInfo": [
       {
         "id": "36c3e5dc-1ddb-4811-aa53-6bcbb0e38c38",
-        "position": "2075,342.5"
+        "position": "2075,344.8"
       },
       {
         "id": "daa574b2-6709-4a1e-96ad-8464aa834209",
-        "position": "1787.5,667.5"
+        "position": "1787.5,669.8"
       },
       {
         "id": "2193dc6b-d31d-4884-ab8a-0d6c2c9651ad",
-        "position": "2312.5,617.5"
+        "position": "2312.5,619.8"
       },
       {
         "id": "560359ac-c199-4c4e-a1e2-d2bd991fec90",
-        "position": "1525,405",
+        "position": "1525,407.3",
         "height": 50.0
       },
       {
         "id": "0a348f95-9553-4e01-9031-7ddefc0594ae",
-        "position": "1700,405",
+        "position": "1700,407.3",
         "height": 50.0
       },
       {
         "id": "79f05ca0-ad55-4b1d-86f0-ef064dcc0873",
-        "position": "1875,405"
+        "position": "1875,407.3"
       },
       {
         "id": "9afa1a28-460e-4ba9-972b-740754a2f035",
-        "position": "2075,467.5"
+        "position": "2075,469.8"
       },
       {
         "id": "c6378205-e6c0-44b3-a23a-9a03babb7bc1",
-        "position": "1187.5,542.5"
+        "position": "1187.5,544.8"
       },
       {
         "id": "2574d24f-a996-4545-940c-54f9548845a4",
-        "position": "1375,542.5"
+        "position": "1375,544.8"
       },
       {
         "id": "e5bb4211-bd9f-4a12-a131-984df0a064a1",
-        "position": "1537.5,542.5"
+        "position": "1537.5,544.8"
       },
       {
         "id": "d42ff92d-779a-4b56-9847-84df9ba8cd7f",
-        "position": "1700,542.5"
+        "position": "1700,544.8"
       },
       {
         "id": "1531c5c6-97ff-4066-afae-f479e9c10746",
-        "position": "1862.5,542.5"
+        "position": "1862.5,544.8"
       },
       {
         "id": "486e08d2-8c27-4f05-95cd-77ad59cb1c41",
-        "position": "2075,592.5"
+        "position": "2075,594.8"
       },
       {
         "id": "0ba89266-d257-446a-9bbc-9c0ae4f2d295",
-        "position": "1825,742.5"
+        "position": "1825,744.8"
       },
       {
         "id": "3df5902e-267d-444f-bcdd-a8d265c160d4",
-        "position": "2075,705"
+        "position": "2075,707.3"
       },
       {
         "id": "3dc20cce-706f-429b-aa2e-d562f8799426",
-        "position": "2075,855"
+        "position": "2075,857.3"
       },
       {
         "id": "0ae0f5d6-43c3-4f38-b540-5490764707e5",
-        "position": "1862.5,992.5"
+        "position": "1862.5,994.8"
       },
       {
         "id": "89309ddd-9238-4e6c-94ca-afbc0c4630b9",
-        "position": "2075,992.5"
+        "position": "2075,994.8"
       },
       {
         "id": "67b451e2-9747-4e88-8c15-fc4a20364801",
-        "position": "2275,867.5"
+        "position": "2275,869.8"
       },
       {
         "id": "6c3460d3-837a-40f0-b7b9-bf13af7d0360",
-        "position": "2512.5,867.5"
+        "position": "2512.5,869.8"
       },
       {
         "id": "38f063bb-e748-4cd5-a113-4750a2215c25",
-        "position": "2337.5,742.5"
+        "position": "2337.5,744.8"
       }
     ],
     "editorObjects": [
@@ -459,8 +460,8 @@
         "height": 190.0
       }
     ],
-    "canvasSize": "3840,2730",
-    "gridPadding": "0,5"
+    "canvasSize": "3840,2732.3",
+    "gridPadding": "0,7.29999999999984"
   },
   "parameters": [],
   "locals": {
