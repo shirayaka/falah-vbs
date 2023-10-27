@@ -13,8 +13,9 @@
           "id": "b85d5c88-5507-4076-997f-416fb7c8360f",
           "type": "scriptAction",
           "script": [
-            "local alpha = Vec3(10,0,0)",
-            "local beta = Vec3(0,10,0)",
+            "local angle = arg.orderData.azimut",
+            "local alpha = Vec3(10,0,0):RotatedAroundZ(angle)",
+            "local beta = Vec3(0,10,0):RotatedAroundZ(angle)",
             "",
             "local rectanglepoints = {",
             "    arg.orderData.position + alpha + beta, -- pos1",
@@ -122,36 +123,36 @@
     "nodesInfo": [
       {
         "id": "a238fe93-ae9e-4e7c-83a6-54f9b9575437",
-        "position": "2000,226"
+        "position": "2000,243"
       },
       {
         "id": "a75d632d-c67f-4460-93ce-3fce3be5cd98",
-        "position": "1787.5,301"
+        "position": "1787.5,318"
       },
       {
         "id": "b85d5c88-5507-4076-997f-416fb7c8360f",
-        "position": "1375,438.5"
+        "position": "1375,455.5"
       },
       {
         "id": "36bd1ee2-834a-46e9-b516-2677fd08d659",
-        "position": "1550,438.5"
+        "position": "1550,455.5"
       },
       {
         "id": "e7b8696a-b77c-4a58-981b-a1fa33d83f8b",
-        "position": "1737.5,438.5"
+        "position": "1737.5,455.5"
       },
       {
         "id": "7a415bab-3978-4723-893d-328dc3ac4c00",
-        "position": "1987.5,438.5"
+        "position": "1987.5,455.5"
       },
       {
         "id": "61429780-e81b-4fbf-8706-be52376dadbc",
-        "position": "2137.5,376"
+        "position": "2137.5,393"
       }
     ],
     "editorObjects": [],
-    "canvasSize": "3840,2526",
-    "gridPadding": "0,1"
+    "canvasSize": "3840,2543",
+    "gridPadding": "0,5.5"
   },
   "parameters": [
     {
