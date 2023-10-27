@@ -56,20 +56,66 @@
         },
         {
           "name": "MSG: OrderCompleted",
-          "id": "47369464-97f8-44ed-96b2-a4fb3fe33147",
+          "id": "b84c8082-d7ff-43ab-ad39-3eff834b2629",
           "type": "scriptAction",
           "script": [
-            "local receivers = message.MakeListOfReceivers(arg.orderData)",
-            "",
-            "message.ReportOrderCompleted(receivers, arg.orderData)"
+            "self:SendMessage(",
+            "    self:GetParentGroup(),",
+            "    \"OrderCompleted\",",
+            "    {}",
+            ")",
+            "self:SendMessage(",
+            "    Message.External,",
+            "    \"OrderCompleted\",",
+            "    {}",
+            ")"
           ]
         }
       ]
     },
     {
       "name": "OrderCompleted",
+      "id": "efdde7aa-27b1-45fe-89dd-efb7adaf8256",
+      "type": "messageHandler",
+      "handler": [
+        "loc.childElementsInPositions[msg.sender] = true"
+      ],
+      "subject": "OrderCompleted"
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "47369464-97f8-44ed-96b2-a4fb3fe33147",
+      "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "47369464-97f8-44ed-96b2-a4fb3fe33147",
+            "position": "1725,1092"
+          }
+        ],
+        "editorObjects": []
+      },
+      "script": [
+        "local receivers = message.MakeListOfReceivers(arg.orderData)",
+        "",
+        "message.ReportOrderCompleted(receivers, arg.orderData)"
+      ]
+    },
+    {
+      "name": "OrderCompleted",
       "id": "d6ca3fb0-a1b1-44b4-8a78-f0133a2e67a8",
       "type": "messageHandler",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "d6ca3fb0-a1b1-44b4-8a78-f0133a2e67a8",
+            "position": "1637.5,954.5"
+          }
+        ],
+        "editorObjects": []
+      },
       "handler": [
         "loc.childElementsInPositions[msg.sender] = message.ValidateOrderCompleted(",
         "    msg, -- full message table",
@@ -87,7 +133,7 @@
       },
       {
         "id": "90cfd906-9297-4f2e-be4e-d1cd8e4c05be",
-        "position": "1985,603.25"
+        "position": "1712.5,1054.5"
       },
       {
         "id": "09b25a88-ca6b-4a24-b5c4-5ef1e78aa8a9",
@@ -102,6 +148,10 @@
         "position": "1775,304.5"
       },
       {
+        "id": "f9cc5ed6-76c8-4498-8873-1616915ec0c8",
+        "position": "2012.5,617"
+      },
+      {
         "id": "cfa27f5e-c8c3-4592-9e9f-df1ea24e92fe",
         "position": "1807,517.5"
       },
@@ -114,12 +164,12 @@
         "position": "1787.5,642"
       },
       {
-        "id": "47369464-97f8-44ed-96b2-a4fb3fe33147",
-        "position": "1997.5,640.75"
+        "id": "b84c8082-d7ff-43ab-ad39-3eff834b2629",
+        "position": "2025,654.5"
       },
       {
-        "id": "d6ca3fb0-a1b1-44b4-8a78-f0133a2e67a8",
-        "position": "2019.5,517.5"
+        "id": "efdde7aa-27b1-45fe-89dd-efb7adaf8256",
+        "position": "2000,492"
       }
     ],
     "editorObjects": [
@@ -174,6 +224,19 @@
         "boxForeground": "#FF000000",
         "width": 201.0,
         "height": 87.0
+      },
+      {
+        "id": "f9cc5ed6-76c8-4498-8873-1616915ec0c8",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 199.0,
+        "height": 102.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
       }
     ],
     "canvasSize": "3840,2742",

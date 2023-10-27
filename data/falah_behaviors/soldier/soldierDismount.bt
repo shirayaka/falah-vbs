@@ -10,8 +10,31 @@
     },
     {
       "name": "MSG: OrderCompleted",
+      "id": "48e19082-9502-4317-b47b-ad64c98872bd",
+      "type": "scriptAction",
+      "script": [
+        "self:SendMessage(",
+        "    self:GetParentGroup(),",
+        "    \"OrderCompleted\",",
+        "    {}",
+        ")"
+      ]
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "MSG: OrderCompleted",
       "id": "fbf7df33-c67b-4485-9ca6-b4d2fac2d4d4",
       "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "fbf7df33-c67b-4485-9ca6-b4d2fac2d4d4",
+            "position": "1862.5,591"
+          }
+        ],
+        "editorObjects": []
+      },
       "script": [
         "local receivers = message.MakeListOfReceivers(arg.orderData)",
         "message.ReportOrderCompleted(receivers, arg.orderData)"
@@ -22,19 +45,23 @@
     "nodesInfo": [
       {
         "id": "858f120e-b026-4fb3-bee0-7f3871219cce",
-        "position": "1900,162.5"
+        "position": "1900,203.5"
       },
       {
         "id": "6353678b-b9fe-4226-b356-d69d38866fa8",
-        "position": "1990,261.5"
+        "position": "1849.75,556.4"
+      },
+      {
+        "id": "577ae7c0-16e7-4ad6-9415-698521b5a471",
+        "position": "2025,303.5"
       },
       {
         "id": "23d72a16-3059-4f79-9c16-fb686737c16a",
-        "position": "1800,287.5"
+        "position": "1800,328.5"
       },
       {
-        "id": "fbf7df33-c67b-4485-9ca6-b4d2fac2d4d4",
-        "position": "2002.75,296.1"
+        "id": "48e19082-9502-4317-b47b-ad64c98872bd",
+        "position": "2037.75,338.1"
       }
     ],
     "editorObjects": [
@@ -50,9 +77,23 @@
         "headerForeground": "#FFFFFFFF",
         "boxBackground": "#FF99FF00",
         "boxForeground": "#FF000000"
+      },
+      {
+        "id": "577ae7c0-16e7-4ad6-9415-698521b5a471",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 193.0,
+        "height": 93.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
+        "boxForeground": "#FF000000"
       }
     ],
-    "canvasSize": "3840,2400"
+    "canvasSize": "3840,2441",
+    "gridPadding": "0,3.5"
   },
   "parameters": [
     {

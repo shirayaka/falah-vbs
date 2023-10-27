@@ -180,4 +180,37 @@ class CfgAvailableBehaviors
 			};
 		};
 	};
+	class falah_behaviors_dismount
+	{
+		icon = "\vbs2\customer\plugins\falah_behaviors\data\falah_behaviors_dismount.paa";
+		allowRotate = true;
+
+		identity = "generic_team";
+		displayname = "Falah FT Dismount";
+		description = "Falah team Dismount";				
+
+		newOrderSubject = "NewOrder";
+		
+		class RootBehaviors
+		{
+			group[] = {"falah_behaviors", "genericRoot"};
+			entity[] = {"falah_behaviors", "genericRoot"};
+		};
+		
+		class Parameters
+		{
+			class orderName
+			{
+				displayName = "orderName";
+				value = "dismount";
+				type = "string";
+			};
+			class debugEnabled
+			{
+				displayName = "debugEnabled";
+				value = "false";
+				type = "boolean";
+			};
+		};
+	};
 };
