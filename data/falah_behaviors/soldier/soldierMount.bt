@@ -147,9 +147,11 @@
       "id": "45157321-2afe-4d07-8d5d-df6de105ac24",
       "type": "scriptAction",
       "script": [
-        "local receivers = message.MakeListOfReceivers(arg.orderData)",
-        "",
-        "message.ReportOrderCompleted(receivers, arg.orderData)"
+        "self:SendMessage(",
+        "    self:GetParentGroup(),",
+        "    \"OrderCompleted\",",
+        "    {}",
+        ")"
       ]
     }
   ],

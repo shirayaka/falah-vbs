@@ -60,6 +60,7 @@
             "                -- mandatory",
             "                vehicle = emptySeats[i]:GetVehicle(),",
             "                vehicleSeat = emptySeats[i],",
+            "                reportCompletedToParent = true",
             "            },",
             "            arg.orderData -- copy of current level orderData",
             "            -- presetName (optional)",
@@ -96,9 +97,16 @@
           "id": "16e1fdc8-73d3-4997-ac3d-32a6aa7e420e",
           "type": "scriptAction",
           "script": [
-            "local receivers = message.MakeListOfReceivers(arg.orderData)",
-            "",
-            "message.ReportOrderCompleted(receivers, arg.orderData)"
+            "self:SendMessage(",
+            "    self:GetParentGroup(),",
+            "    \"OrderCompleted\",",
+            "    {}",
+            ")",
+            "self:SendMessage(",
+            "    Message.External,",
+            "    \"OrderCompleted\",",
+            "    {}",
+            ")"
           ]
         }
       ]
@@ -108,10 +116,7 @@
       "id": "d2a76f88-0d32-493e-9268-9cd71777b9e3",
       "type": "messageHandler",
       "handler": [
-        "loc.childElementsInPositions[msg.sender] = message.ValidateOrderCompleted(",
-        "    msg, -- full message table",
-        "    \"mount\" -- behaviorName used in MSG sender script action",
-        ")"
+        "loc.childElementsInPositions[msg.sender] = true"
       ],
       "subject": "OrderCompleted"
     }
@@ -120,43 +125,43 @@
     "nodesInfo": [
       {
         "id": "d9adfcfd-a57b-4bcc-ac0d-d9217e5bfa2c",
-        "position": "1846,420.75"
+        "position": "1846,443.5"
       },
       {
         "id": "5c85d957-d0d3-4cb3-9eea-81ff86262c45",
-        "position": "2028,615.25"
+        "position": "2028,638"
       },
       {
         "id": "bbc64293-4e64-4940-93f0-94fdf36fff79",
-        "position": "1578,615.25"
+        "position": "1578,638"
       },
       {
         "id": "cc77f383-2d6a-414a-9f86-aa5932d5d9a7",
-        "position": "1812.5,217"
+        "position": "1812.5,239.75"
       },
       {
         "id": "3b1c5061-89ac-419e-abdd-ea635c1f5c0d",
-        "position": "1812.5,304.5"
+        "position": "1812.5,327.25"
       },
       {
         "id": "d26b9e8d-5f04-4b99-9679-c3a98f1f2f6a",
-        "position": "1850,529.5"
+        "position": "1850,552.25"
       },
       {
         "id": "feb91a90-5791-410f-b0ea-eee45a56b078",
-        "position": "1590.5,652.75"
+        "position": "1590.5,675.5"
       },
       {
         "id": "c879f2d4-773c-4418-aca1-89f73e8cce34",
-        "position": "1825,654.5"
+        "position": "1825,677.25"
       },
       {
         "id": "16e1fdc8-73d3-4997-ac3d-32a6aa7e420e",
-        "position": "2040.5,652.75"
+        "position": "2040.5,675.5"
       },
       {
         "id": "d2a76f88-0d32-493e-9268-9cd71777b9e3",
-        "position": "2062.5,529.5"
+        "position": "2062.5,552.25"
       }
     ],
     "editorObjects": [
@@ -213,8 +218,8 @@
         "height": 87.0
       }
     ],
-    "canvasSize": "3840,2642",
-    "gridPadding": "0,4.5"
+    "canvasSize": "3840,2664.75",
+    "gridPadding": "0,2.25"
   },
   "parameters": [
     {

@@ -113,6 +113,23 @@
           ]
         },
         {
+          "name": "MSG: OrderCompleted",
+          "id": "85f58436-7d62-4aa5-a2f9-12194a34b458",
+          "type": "scriptAction",
+          "script": [
+            "self:SendMessage(",
+            "    self:GetParentGroup(),",
+            "    \"OrderCompleted\",",
+            "    {}",
+            ")",
+            "self:SendMessage(",
+            "    Message.External,",
+            "    \"OrderCompleted\",",
+            "    {}",
+            ")"
+          ]
+        },
+        {
           "name": "Wait Forever",
           "id": "7a415bab-3978-4723-893d-328dc3ac4c00",
           "type": "waitForever"
@@ -192,7 +209,7 @@
     "nodesInfo": [
       {
         "id": "a238fe93-ae9e-4e7c-83a6-54f9b9575437",
-        "position": "2000,243"
+        "position": "1962.5,118"
       },
       {
         "id": "e857997b-3028-48b9-924b-b3f7076cde7b",
@@ -201,6 +218,10 @@
       {
         "id": "3c9618a6-c696-4337-80c0-75d305bbda45",
         "position": "1312.5,668"
+      },
+      {
+        "id": "e3ea81fe-0c19-43da-bf02-98a074e617ed",
+        "position": "2000,430.5"
       },
       {
         "id": "a75d632d-c67f-4460-93ce-3fce3be5cd98",
@@ -227,12 +248,16 @@
         "position": "1737.5,455.5"
       },
       {
+        "id": "85f58436-7d62-4aa5-a2f9-12194a34b458",
+        "position": "2012.5,468"
+      },
+      {
         "id": "7a415bab-3978-4723-893d-328dc3ac4c00",
-        "position": "1987.5,455.5"
+        "position": "2250,455.5"
       },
       {
         "id": "61429780-e81b-4fbf-8706-be52376dadbc",
-        "position": "2137.5,393"
+        "position": "2325,318"
       }
     ],
     "editorObjects": [
@@ -260,6 +285,19 @@
         "headerBackground": "#FF00FF00",
         "headerForeground": "#FF000000",
         "boxBackground": "#FF90EE90",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "e3ea81fe-0c19-43da-bf02-98a074e617ed",
+        "type": "comment",
+        "header": "Parent group & External",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 199.0,
+        "height": 102.0,
+        "headerBackground": "#FFB26B00",
+        "headerForeground": "#FFFFFFFF",
+        "boxBackground": "#FF99FF00",
         "boxForeground": "#FF000000"
       }
     ],
