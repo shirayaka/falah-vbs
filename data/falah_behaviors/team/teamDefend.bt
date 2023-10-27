@@ -9,6 +9,18 @@
       "type": "sequence",
       "subtrees": [
         {
+          "name": "find cover",
+          "id": "36bd1ee2-834a-46e9-b516-2677fd08d659",
+          "type": "scriptAction",
+          "script": [
+            "loc.covers = {}",
+            "local listOfChildElements = orbat.GetChildElements()",
+            "for i=1, #listOfChildElements do",
+            "  loc.covers[i] = arg.orderData.position + Vec3(math.random(-5,5), math.random(-5,5), 0)",
+            "end"
+          ]
+        },
+        {
           "name": "MSG: NewOrder to soldiers",
           "id": "e7b8696a-b77c-4a58-981b-a1fa33d83f8b",
           "type": "scriptAction",
@@ -27,7 +39,7 @@
             "        \"NewOrder\", -- behaviorName",
             "        { ",
             "            orderName = \"move\",",
-            "            position = arg.orderData.position + Vec3(math.random(5), math.random(5), 0),",
+            "            position = loc.covers[i],",
             "            parentOrderData = arg.orderData -- copy of current level orderData",
             "        }",
             "    )",
@@ -57,7 +69,18 @@
         "        arg.orderData.position, -- pos1",
         "        arg.orderData.position + Vec3(0,0,4), -- pos2",
         "        0.8, 0.3, 0.7 -- colors",
-        "    ) ",
+        "    )",
+        "    if loc.covers ~= nil then ",
+        "        local listOfChildElements = orbat.GetChildElements()",
+        "        for i=1, #listOfChildElements do",
+        "            DebugLine(",
+        "                loc.covers[i], -- pos1",
+        "               loc.covers[i] + Vec3(0,0,4), -- pos2",
+        "                0, 1, 0 -- colors",
+        "            )",
+        "          ",
+        "        end",
+        "    end",
         "end"
       ]
     }
@@ -66,28 +89,32 @@
     "nodesInfo": [
       {
         "id": "a238fe93-ae9e-4e7c-83a6-54f9b9575437",
-        "position": "2000,225"
+        "position": "2000,226"
       },
       {
         "id": "a75d632d-c67f-4460-93ce-3fce3be5cd98",
-        "position": "1900,325"
+        "position": "1900,326"
+      },
+      {
+        "id": "36bd1ee2-834a-46e9-b516-2677fd08d659",
+        "position": "1550,438.5"
       },
       {
         "id": "e7b8696a-b77c-4a58-981b-a1fa33d83f8b",
-        "position": "1737.5,437.5"
+        "position": "1737.5,438.5"
       },
       {
         "id": "7a415bab-3978-4723-893d-328dc3ac4c00",
-        "position": "1987.5,437.5"
+        "position": "1987.5,438.5"
       },
       {
         "id": "61429780-e81b-4fbf-8706-be52376dadbc",
-        "position": "2137.5,375"
+        "position": "2137.5,376"
       }
     ],
     "editorObjects": [],
-    "canvasSize": "3840,2525",
-    "gridPadding": "0,6.5"
+    "canvasSize": "3840,2526",
+    "gridPadding": "0,1"
   },
   "parameters": [
     {
@@ -96,5 +123,7 @@
       "defaultValue": ""
     }
   ],
-  "locals": {}
+  "locals": {
+    "covers": "return nil"
+  }
 }
