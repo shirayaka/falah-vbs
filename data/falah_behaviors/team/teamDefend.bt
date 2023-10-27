@@ -9,6 +9,24 @@
       "type": "sequence",
       "subtrees": [
         {
+          "name": "makeArea",
+          "id": "b85d5c88-5507-4076-997f-416fb7c8360f",
+          "type": "scriptAction",
+          "script": [
+            "local alpha = Vec3(10,0,0)",
+            "local beta = Vec3(0,10,0)",
+            "",
+            "local rectanglepoints = {",
+            "    arg.orderData.position + alpha + beta, -- pos1",
+            "    arg.orderData.position + alpha - beta, -- pos2",
+            "    arg.orderData.position - alpha - beta, -- pos3",
+            "    arg.orderData.position - alpha + beta, -- pos4",
+            "}",
+            "",
+            "loc.searchArea = rectanglepoints"
+          ]
+        },
+        {
           "name": "find cover",
           "id": "36bd1ee2-834a-46e9-b516-2677fd08d659",
           "type": "scriptAction",
@@ -59,17 +77,32 @@
       "type": "scriptAction",
       "script": [
         "if arg.orderData.debugEnabled then",
+        "    ",
+        "    -- draw line of the position",
         "    local vector = MathExt.HeadingToVec3(arg.orderData.azimut)",
         "    DebugLine(",
         "        arg.orderData.position + Vec3(0,0,4), -- pos1",
         "        arg.orderData.position + Vec3(0,0,4) + 4*vector, -- pos2",
         "        0.8, 0.3, 0.7 -- colors",
         "    )",
+        "    ",
+        "    -- draw line of the direction",
         "    DebugLine(",
         "        arg.orderData.position, -- pos1",
         "        arg.orderData.position + Vec3(0,0,4), -- pos2",
         "        0.8, 0.3, 0.7 -- colors",
         "    )",
+        "",
+        "    -- once area calculated, draw all points of the area",
+        "    if loc.searchArea then",
+        "        draw.PolygonOnSurface(",
+        "            loc.searchArea,",
+        "            0.8, 0.3, 0.7, 1, -- colors",
+        "            Vec3(0,0,1)",
+        "        )",
+        "    end",
+        "",
+        "    -- if covers calculated, draw line for each of them",
         "    if loc.covers ~= nil then ",
         "        local listOfChildElements = orbat.GetChildElements()",
         "        for i=1, #listOfChildElements do",
@@ -93,7 +126,11 @@
       },
       {
         "id": "a75d632d-c67f-4460-93ce-3fce3be5cd98",
-        "position": "1900,326"
+        "position": "1787.5,301"
+      },
+      {
+        "id": "b85d5c88-5507-4076-997f-416fb7c8360f",
+        "position": "1375,438.5"
       },
       {
         "id": "36bd1ee2-834a-46e9-b516-2677fd08d659",
@@ -124,6 +161,7 @@
     }
   ],
   "locals": {
-    "covers": "return nil"
+    "covers": "return nil",
+    "searchArea": "return nil"
   }
 }
