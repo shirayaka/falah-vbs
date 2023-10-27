@@ -147,4 +147,37 @@ class CfgAvailableBehaviors
 			};
 		};
 	};
+	class falah_behaviors_mount
+	{
+		icon = "\vbs2\customer\plugins\falah_behaviors\data\falah_behaviors_mount.paa";
+		allowRotate = true;
+
+		identity = "generic_team";
+		displayname = "Falah FT Mount";
+		description = "Falah team Mount";				
+
+		newOrderSubject = "NewOrder";
+		
+		class RootBehaviors
+		{
+			group[] = {"falah_behaviors", "genericRoot"};
+			entity[] = {"falah_behaviors", "genericRoot"};
+		};
+		
+		class Parameters
+		{
+			class orderName
+			{
+				displayName = "orderName";
+				value = "mount";
+				type = "string";
+			};
+			class debugEnabled
+			{
+				displayName = "debugEnabled";
+				value = "false";
+				type = "boolean";
+			};
+		};
+	};
 };

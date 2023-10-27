@@ -102,6 +102,7 @@
         "        [\"follow\"] = {currentBTSet, \"teamFollowEntityInColumn\"}, -- INPUTS: entity        ",
         "        [\"move\"] = {currentBTSet, \"teamMoveInColumn\"}, -- INPUTS: position   ",
         "        [\"defend\"] = {currentBTSet, \"teamDefend\"}, -- INPUTS: position ",
+        "        [\"mount\"] = {currentBTSet, \"teamMount\"}",
         "    },",
         "    squad = {",
         "        -- HIGH LEVEL NOORDER/IDLE",

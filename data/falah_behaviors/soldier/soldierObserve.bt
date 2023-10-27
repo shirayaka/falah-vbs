@@ -1,22 +1,54 @@
 {
-  "name": "Reaction behavior OR Idle",
-  "id": "45d73b70-7ffc-4e50-bad7-cbae0da0824a",
-  "type": "scriptedReference",
+  "name": "if in vehicle, wait",
+  "id": "063ac063-8890-482d-9378-c74159b2cd13",
+  "type": "selector",
+  "subtrees": [
+    {
+      "name": "Wait Forever",
+      "id": "ab6f1326-9861-4230-ae81-a27f36763a6e",
+      "type": "waitForever",
+      "decorators": [
+        {
+          "id": "dea633df-72b4-4579-b869-74d48ae40fa9",
+          "type": "scriptCondition",
+          "name": "in vehicle?",
+          "script": [
+            "return self:GetOwnCrewPosition():Valid()"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reaction behavior OR Idle",
+      "id": "45d73b70-7ffc-4e50-bad7-cbae0da0824a",
+      "type": "scriptedReference",
+      "target": "return bb.orders.reactionPassive",
+      "arguments": {
+        "orderData": "return arg.orderData",
+        "defaultBehaviorPath": "return bb.orders.idle"
+      }
+    }
+  ],
   "meta": {
     "nodesInfo": [
       {
+        "id": "063ac063-8890-482d-9378-c74159b2cd13",
+        "position": "1625,138"
+      },
+      {
+        "id": "ab6f1326-9861-4230-ae81-a27f36763a6e",
+        "position": "1502.64285714286,278"
+      },
+      {
         "id": "45d73b70-7ffc-4e50-bad7-cbae0da0824a",
-        "position": "1687.5,200"
+        "position": "1687.5,250.5"
       }
     ],
     "editorObjects": [],
-    "canvasSize": "3840,2400"
+    "canvasSize": "3840,2450.5",
+    "gridPadding": "0,0.5"
   },
-  "target": "return bb.orders.reactionPassive",
-  "arguments": {
-    "orderData": "return arg.orderData",
-    "defaultBehaviorPath": "return bb.orders.idle"
-  },
+  "active": true,
   "parameters": [
     {
       "name": "orderData",
