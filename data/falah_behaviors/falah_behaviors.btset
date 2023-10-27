@@ -23,6 +23,7 @@
     "soldier\\soldierOccupySafe.bt",
     "soldier\\soldierReaction.bt",
     "soldier\\soldierReactionPassive.bt",
+    "squad\\squadDefend.bt",
     "squad\\squadFollowInColumn.bt",
     "squad\\squadMoveInColumn.bt",
     "squad\\squadObserve.bt",

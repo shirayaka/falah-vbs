@@ -1,0 +1,145 @@
+{
+  "name": "defend&Debug",
+  "id": "f1e5e753-42cf-49e9-b2c6-fd232e5cc8da",
+  "type": "supervisedParallel",
+  "subtrees": [
+    {
+      "name": "<unnamed>",
+      "id": "2b1d521b-9b5b-4664-8e09-ab530c0f343b",
+      "type": "sequence",
+      "subtrees": [
+        {
+          "name": "MSG: NewOrder to soldiers",
+          "id": "27cc8e49-f9a6-4586-8319-6bf3e8d6d430",
+          "type": "scriptAction",
+          "script": [
+            "for member in self:GetChildGroups() do",
+            "    self:SendMessage(",
+            "        member, -- receiver",
+            "        \"NewOrder\", -- behaviorName",
+            "        { ",
+            "            orderName = \"defend\",",
+            "            position = arg.orderData.position + Vec3(math.random(-20,20),math.random(-20,20),0),",
+            "            azimut = arg.orderData.azimut,",
+            "            parentOrderData = arg.orderData -- copy of current level orderData",
+            "        }",
+            "    )",
+            "end"
+          ]
+        },
+        {
+          "name": "Wait Forever",
+          "id": "d2b7453b-9161-4dff-843c-8cfc7d17fc34",
+          "type": "waitForever"
+        }
+      ]
+    },
+    {
+      "name": "debug",
+      "id": "4c0f1700-4638-4233-8ae2-17e7c5a7de82",
+      "type": "scriptAction",
+      "script": [
+        "if arg.orderData.debugEnabled then",
+        "    ",
+        "    -- draw line of the position",
+        "    local vector = MathExt.HeadingToVec3(arg.orderData.azimut)",
+        "    DebugLine(",
+        "        arg.orderData.position + Vec3(0,0,4), -- pos1",
+        "        arg.orderData.position + Vec3(0,0,4) + 4*vector, -- pos2",
+        "        0.8, 0.3, 0.7 -- colors",
+        "    )",
+        "    ",
+        "    -- draw line of the direction",
+        "    DebugLine(",
+        "        arg.orderData.position, -- pos1",
+        "        arg.orderData.position + Vec3(0,0,4), -- pos2",
+        "        0.8, 0.3, 0.7 -- colors",
+        "    )",
+        "",
+        "    -- once area calculated, draw all points of the area",
+        "    if loc.searchArea then",
+        "        draw.PolygonOnSurface(",
+        "            loc.searchArea,",
+        "            0.8, 0.3, 0.7, 1, -- colors",
+        "            Vec3(0,0,1)",
+        "        )",
+        "    end",
+        "",
+        "    -- if covers calculated, draw line for each of them",
+        "    if loc.covers ~= nil then ",
+        "        for i=1, #loc.covers do",
+        "            DebugLine(",
+        "               loc.covers[i], -- pos1",
+        "               loc.covers[i] + Vec3(0,0,4), -- pos2",
+        "                0, 1, 0 -- colors",
+        "            )",
+        "          ",
+        "        end",
+        "    end",
+        "end"
+      ]
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "MSG: OrderCompleted",
+      "id": "c9783b96-7d16-47b1-890f-6f2142f7d521",
+      "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "c9783b96-7d16-47b1-890f-6f2142f7d521",
+            "position": "1668.25,438.416666666667"
+          }
+        ],
+        "editorObjects": []
+      },
+      "script": [
+        "self:SendMessage(",
+        "    self:GetParentGroup(),",
+        "    \"OrderCompleted\",",
+        "    {}",
+        ")",
+        "self:SendMessage(",
+        "    Message.External,",
+        "    \"OrderCompleted\",",
+        "    {}",
+        ")"
+      ]
+    }
+  ],
+  "meta": {
+    "nodesInfo": [
+      {
+        "id": "f1e5e753-42cf-49e9-b2c6-fd232e5cc8da",
+        "position": "1618.25,88.4166666666667"
+      },
+      {
+        "id": "2b1d521b-9b5b-4664-8e09-ab530c0f343b",
+        "position": "1443.25,288.416666666667"
+      },
+      {
+        "id": "27cc8e49-f9a6-4586-8319-6bf3e8d6d430",
+        "position": "1393.25,425.916666666667"
+      },
+      {
+        "id": "d2b7453b-9161-4dff-843c-8cfc7d17fc34",
+        "position": "1905.75,425.916666666667"
+      },
+      {
+        "id": "4c0f1700-4638-4233-8ae2-17e7c5a7de82",
+        "position": "1980.75,288.416666666667"
+      }
+    ],
+    "editorObjects": [],
+    "canvasSize": "3840,2462.66666666667",
+    "gridPadding": "0,0.166666666666686"
+  },
+  "parameters": [
+    {
+      "name": "orderData",
+      "isOptional": false
+    }
+  ],
+  "locals": {}
+}

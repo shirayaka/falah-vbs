@@ -118,6 +118,7 @@
         "        -- LOW LEVEL (without reaction)",
         "        [\"move\"] = {currentBTSet, \"squadMoveInColumn\"}, -- INPUTS: position",
         "        [\"follow\"] = {currentBTSet, \"squadFollowInColumn\"}, -- INPUTS: position",
+        "        [\"defend\"] = {currentBTSet, \"squadDefend\"}, -- INPUTS: position ",
         "    },",
         "    platoon = {",
         "        -- HIGH LEVEL NOORDER/IDLE",
@@ -169,7 +170,7 @@
             "loc.newOrderData = msg.value",
             "loc.resetOnNewOrder = true",
             "",
-            "-- DebugLog(msg.value.orderName)"
+            "DebugLog(self .. \":\" .. msg.value.orderName)"
           ],
           "subject": "NewOrder"
         },
