@@ -28,15 +28,62 @@
           ]
         },
         {
-          "name": "find cover",
-          "id": "36bd1ee2-834a-46e9-b516-2677fd08d659",
-          "type": "scriptAction",
-          "script": [
-            "loc.covers = {}",
-            "local listOfChildElements = orbat.GetChildElements()",
-            "for i=1, #listOfChildElements do",
-            "  loc.covers[i] = arg.orderData.position + Vec3(math.random(-5,5), math.random(-5,5), 0)",
-            "end"
+          "name": "proper cover search",
+          "id": "6a9a606f-34d1-4343-a957-3f60a82accdb",
+          "type": "sequence",
+          "subtrees": [
+            {
+              "name": "proper find cover",
+              "id": "36bd1ee2-834a-46e9-b516-2677fd08d659",
+              "type": "scriptAction",
+              "script": [
+                "loc.covers = {}",
+                "",
+                "local listOfChildElements = orbat.GetChildElements()",
+                "local positionsOfSoldiers = {}",
+                "",
+                "for i=1, #listOfChildElements do",
+                "    -- positionsOfSoldiers[i] = self:GetEntity(i-1):GetPosition() -- Saving soldier positions",
+                "    positionsOfSoldiers[i] = arg.orderData.position + Vec3(math.random(-5,5), math.random(-5,5), 0)",
+                "end",
+                "",
+                "local params = {",
+                "    --[[weights = { ",
+                "        distance = -0.0001, ",
+                "        protection = 1, ",
+                "        preferenceTowardThreats = -0.1,",
+                "        lineOfFire = 0",
+                "    }, ",
+                "    constraints = {",
+                "        coneOfFire = 15 ",
+                "    }]]--",
+                "}",
+                "",
+                "loc.coverQueryRequest = FindCovers(",
+                "    {}, -- threats",
+                "    Polygon(loc.searchArea), -- searchArea",
+                "    positionsOfSoldiers, -- current positions of soldiers",
+                "    params -- defined above",
+                ")"
+              ]
+            },
+            {
+              "name": "Wait until cover ready",
+              "id": "cc52e1a2-4f00-4ca4-8bdc-504f71750a52",
+              "type": "waitUntil",
+              "condition": [
+                "local isReady = loc.coverQueryRequest:IsReady()",
+                "",
+                "if isReady then ",
+                "    loc.coverQueryResult = loc.coverQueryRequest:Value()",
+                "    for i=1, #loc.coverQueryResult do",
+                "        loc.covers[i] = loc.coverQueryResult[i].position",
+                "    end",
+                "    return true",
+                "end",
+                "return false "
+              ]
+            }
           ]
         },
         {
@@ -105,16 +152,38 @@
         "",
         "    -- if covers calculated, draw line for each of them",
         "    if loc.covers ~= nil then ",
-        "        local listOfChildElements = orbat.GetChildElements()",
-        "        for i=1, #listOfChildElements do",
+        "        for i=1, #loc.covers do",
         "            DebugLine(",
-        "                loc.covers[i], -- pos1",
+        "               loc.covers[i], -- pos1",
         "               loc.covers[i] + Vec3(0,0,4), -- pos2",
         "                0, 1, 0 -- colors",
         "            )",
         "          ",
         "        end",
         "    end",
+        "end"
+      ]
+    }
+  ],
+  "unlinked-trees": [
+    {
+      "name": "random find cover",
+      "id": "93043089-2103-44cd-b966-054b441e86dc",
+      "type": "scriptAction",
+      "meta": {
+        "nodesInfo": [
+          {
+            "id": "93043089-2103-44cd-b966-054b441e86dc",
+            "position": "1337.5,705.5"
+          }
+        ],
+        "editorObjects": []
+      },
+      "script": [
+        "loc.covers = {}",
+        "local listOfChildElements = orbat.GetChildElements()",
+        "for i=1, #listOfChildElements do",
+        "  loc.covers[i] = arg.orderData.position + Vec3(math.random(-5,5), math.random(-5,5), 0)",
         "end"
       ]
     }
@@ -126,16 +195,32 @@
         "position": "2000,243"
       },
       {
+        "id": "e857997b-3028-48b9-924b-b3f7076cde7b",
+        "position": "1312.5,329.388888888889"
+      },
+      {
+        "id": "3c9618a6-c696-4337-80c0-75d305bbda45",
+        "position": "1312.5,668"
+      },
+      {
         "id": "a75d632d-c67f-4460-93ce-3fce3be5cd98",
         "position": "1787.5,318"
       },
       {
         "id": "b85d5c88-5507-4076-997f-416fb7c8360f",
-        "position": "1375,455.5"
+        "position": "1112.5,455.5"
+      },
+      {
+        "id": "6a9a606f-34d1-4343-a957-3f60a82accdb",
+        "position": "1412.5,455.5"
       },
       {
         "id": "36bd1ee2-834a-46e9-b516-2677fd08d659",
-        "position": "1550,455.5"
+        "position": "1337.5,580.5"
+      },
+      {
+        "id": "cc52e1a2-4f00-4ca4-8bdc-504f71750a52",
+        "position": "1525,580.5"
       },
       {
         "id": "e7b8696a-b77c-4a58-981b-a1fa33d83f8b",
@@ -150,7 +235,34 @@
         "position": "2137.5,393"
       }
     ],
-    "editorObjects": [],
+    "editorObjects": [
+      {
+        "id": "e857997b-3028-48b9-924b-b3f7076cde7b",
+        "type": "comment",
+        "header": "search for covers using FindCovers",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 395.888888888889,
+        "height": 333.99999999999989,
+        "headerBackground": "#FF00FF00",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FF90EE90",
+        "boxForeground": "#FF000000"
+      },
+      {
+        "id": "3c9618a6-c696-4337-80c0-75d305bbda45",
+        "type": "comment",
+        "header": "random positions",
+        "body": "",
+        "bodyAlignment": "Left",
+        "width": 395.888888888889,
+        "height": 155.11111111111109,
+        "headerBackground": "#FF00FF00",
+        "headerForeground": "#FF000000",
+        "boxBackground": "#FF90EE90",
+        "boxForeground": "#FF000000"
+      }
+    ],
     "canvasSize": "3840,2543",
     "gridPadding": "0,5.5"
   },
@@ -163,6 +275,8 @@
   ],
   "locals": {
     "covers": "return nil",
-    "searchArea": "return nil"
+    "searchArea": "return nil",
+    "coverQueryRequest": "return nil",
+    "coverQueryResult": "return nil"
   }
 }
